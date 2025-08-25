@@ -1,0 +1,20 @@
+# topics.yaml — queue of posts. The generator skips ones already written.
+# You can add 100+ and it will work through them daily.
+
+topics:
+  - keyword: "Best AI bookkeeping tools for small businesses 2025"
+    intent: "Commercial investigation"
+    audience: "US small business owners and solo founders"
+  - keyword: "How to automate bookkeeping with AI (QuickBooks + receipt OCR)"
+    intent: "How-to tutorial"
+    audience: "Freelancers using QuickBooks"
+  - keyword: "AI expense tracking apps compared (Expensify vs Zoho vs Divvy)"
+    intent: "Comparison review"
+    audience: "Startup ops and finance admins"
+  - keyword: "AI for accountants: workflows to serve more clients with the same team"
+    intent: "B2B professional"
+    audience: "Small CPA firms"
+  - keyword: "AI tax prep tools for self-employed in 2025"
+    intent: "Commercial investigation"
+    audience: "US self-employed, 1099 contractors"
+

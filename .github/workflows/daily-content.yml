@@ -1,0 +1,49 @@
+name: daily-content
+
+on:
+  schedule:
+    # 09:15 AM US/Pacific (your timezone) ≈ 16:15 UTC
+    - cron: "15 16 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # keep history (nice to have)
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install openai python-slugify pyyaml
+
+      - name: Generate posts
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Tune these if you want
+          POSTS_PER_RUN: "2"           # 1 or 2
+          MODEL_OUTLINE: "gpt-5-mini"  # fast/cheap outline
+          MODEL_DRAFT: "gpt-5"         # high-quality final
+        run: |
+          python scripts/generate_posts.py
+
+      - name: Commit & push changes
+        run: |
+          git config user.name  "Content Bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: daily AI posts" || echo "No changes"
+          git push
+
