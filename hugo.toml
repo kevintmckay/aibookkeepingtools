@@ -1,10 +1,11 @@
 baseURL = "https://aibookkeepingtools.com/"
 title = "AI Bookkeeping Tools"
 theme = "PaperMod"
-paginate = pagerSize = 12
 enableRobotsTXT = true
 
-# Basic metadata
+[pagination]
+  pagerSize = 12
+
 [params]
   defaultTheme = "auto"
   ShowReadingTime = true
@@ -15,8 +16,7 @@ enableRobotsTXT = true
   description = "Compare and master AI bookkeeping software, workflows, and tutorials."
 
 [markup.goldmark.renderer]
-  unsafe = true  # allow raw HTML in posts
+  unsafe = true
 
 [minify]
   minifyOutput = true
-
