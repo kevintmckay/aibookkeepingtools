@@ -1,7 +1,7 @@
 baseURL = "https://aibookkeepingtools.com/"
 title = "AI Bookkeeping Tools"
 theme = "PaperMod"
-paginate = 12
+paginate = pagerSize = 12
 enableRobotsTXT = true
 
 # Basic metadata
