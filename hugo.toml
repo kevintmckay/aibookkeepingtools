@@ -1,4 +1,5 @@
 baseURL = "https://aibookkeepingtools.com/"
+languageCode = "en-us"
 title = "AI Bookkeeping Tools"
 theme = "PaperMod"
 enableRobotsTXT = true
@@ -20,3 +21,4 @@ enableRobotsTXT = true
 
 [minify]
   minifyOutput = true
+
