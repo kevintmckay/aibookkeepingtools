@@ -1,0 +1,22 @@
+baseURL = "https://aibookkeepingtools.com/"
+title = "AI Bookkeeping Tools"
+theme = "PaperMod"
+paginate = 12
+enableRobotsTXT = true
+
+# Basic metadata
+[params]
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShowPostNavLinks = true
+  showtoc = true
+  tocopen = true
+  description = "Compare and master AI bookkeeping software, workflows, and tutorials."
+
+[markup.goldmark.renderer]
+  unsafe = true  # allow raw HTML in posts
+
+[minify]
+  minifyOutput = true
+
