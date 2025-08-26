@@ -2,3 +2,6 @@
 /resources/
 .DS_Store
 *.log
+public/
+resources/
+.hugo_build.lock
