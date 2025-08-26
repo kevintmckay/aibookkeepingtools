@@ -1,26 +1,24 @@
 {{ define "main" }}
-<main class="container mx-auto px-4 my-8">
+<main class="container mx-auto px-4 my-8 taxonomy">
   <header class="mb-8">
     <h1 class="text-3xl font-semibold">{{ .Title }}</h1>
-    {{ with .Description }}<p class="text-neutral-500 mt-2">{{ . }}</p>{{ end }}
+    {{ with .Description }}<p class="text-neutral-500 mt-2">{{ . }}</p>{{ else }}
+      <p class="text-neutral-500 mt-2">Explore topics across the site.</p>
+    {{ end }}
   </header>
 
-  {{/* All terms for this taxonomy (alphabetical) */}}
+  {{/* Collect all terms, sort by usage count desc (then alpha) */}}
   {{ $terms := .Data.Terms.Alphabetical }}
-
-  {{ if lt (len $terms) 1 }}
+  {{ $sorted := sort $terms "Count" "desc" }}
+  {{ if lt (len $sorted) 1 }}
     <p>No terms found.</p>
   {{ else }}
-    <div class="grid gap-4">
-      {{ range $terms }}
-        <article class="border rounded-xl p-5">
-          <h2 class="text-xl font-medium">
-            <a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>
-          </h2>
-          <div class="text-sm text-neutral-500 mt-1">
-            {{ .Count }} {{ if eq .Count 1 }}post{{ else }}posts{{ end }}
-          </div>
-        </article>
+    <div class="terms-grid">
+      {{ range $sorted }}
+        <a class="term-chip" href="{{ .Page.RelPermalink }}">
+          <span class="term-name">{{ .Page.Title }}</span>
+          <span class="term-count">{{ .Count }}</span>
+        </a>
       {{ end }}
     </div>
   {{ end }}
