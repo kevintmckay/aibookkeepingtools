@@ -5,11 +5,12 @@
 Robust generator: writes 1–2 posts/day from topics.yaml
 
 Env:
-  OPENAI_API_KEY     (required)
-  POSTS_PER_RUN      default "2"
-  MODEL_OUTLINE      default "gpt-5-mini"
-  MODEL_DRAFT        default "gpt-5-mini"
-  DISABLE_HEARTBEAT  set to "1" / "true" to skip heartbeat files entirely
+  OPENAI_API_KEY       (required)
+  POSTS_PER_RUN        default "2"
+  MODEL_OUTLINE        default "gpt-5-mini"
+  MODEL_DRAFT          default "gpt-5-mini"
+  DISABLE_HEARTBEAT    set "1"/"true" to skip heartbeat files entirely
+  ALLOW_DUPLICATE_SLUG set "1"/"true" to allow timestamp-suffixed duplicates (default: skip)
 """
 
 import os, re, json, pathlib, time, sys, math
@@ -32,6 +33,7 @@ POSTS_PER_RUN       = _int("POSTS_PER_RUN", 2)
 MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-5-mini")
 MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-5-mini")
 DISABLE_HEARTBEAT   = os.getenv("DISABLE_HEARTBEAT", "").strip().lower() in ("1","true","yes")
+ALLOW_DUP_SLUG      = os.getenv("ALLOW_DUPLICATE_SLUG", "").strip().lower() in ("1","true","yes")
 
 # --- OpenAI client ---
 try:
@@ -172,7 +174,7 @@ def load_topics():
     data = yaml.safe_load(TOPICS_FILE.read_text(encoding="utf-8")) or {}
     return data.get("topics", [])
 
-def existing_slugs():
+def existing_slugs() -> set:
     CONTENT_DIR.mkdir(parents=True, exist_ok=True)
     return {p.stem for p in CONTENT_DIR.glob("*.md")}
 
@@ -280,9 +282,19 @@ def main():
         outline_list = plan.get("outline") or []
         faqs = plan.get("faqs") or []
 
+        # Base slug derived from title OR keyword
         base_slug = slugify(title) or slugify(keyword)
-        slug = base_slug if base_slug not in used else f"{base_slug}-{int(datetime.now(timezone.utc).timestamp())}"
 
+        # NEW: If a post with this base slug already exists, SKIP by default
+        if base_slug in used and not ALLOW_DUP_SLUG:
+            print(f"[skip] Duplicate slug detected, skipping topic: {keyword!r} -> slug {base_slug!r}")
+            continue
+
+        # If duplicates are allowed, fall back to timestamp suffix
+        if base_slug in used and ALLOW_DUP_SLUG:
+            base_slug = f"{base_slug}-{int(datetime.now(timezone.utc).timestamp())}"
+
+        slug = base_slug
         outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Steps\n- Conclusion"
 
         # --- Draft ---
@@ -297,47 +309,5 @@ def main():
                         {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
                             working_title=title, summary=summary, outline_md=outline_md)}
                     ],
-                    max_tokens=2000,   # ~1.5–2k tokens output target
-                    timeout=90,
-                    json_mode=False,
-                    max_retries=5,
-                )
-                if body_md:
-                    break
-                backoff_sleep(attempt)
-            if body_md:
-                break
-
-        if not body_md:
-            print(f"Draft failed for: {title}", file=sys.stderr)
-            continue
-
-        if faqs and ("## FAQ" not in body_md and "### FAQ" not in body_md):
-            faq_md = ["\n\n## FAQ"]
-            for qa in faqs[:5]:
-                q = (qa.get("q") or qa.get("question") or "").strip()
-                a = (qa.get("a") or qa.get("answer") or "").strip()
-                if q and a:
-                    faq_md.append(f"\n**Q: {q}**\n\n{a}\n")
-            body_md += "\n" + "\n".join(faq_md)
-
-        write_post(slug, title, summary, body_md)
-        used.add(slug)
-        generated += 1
-
-    if generated == 0:
-        if DISABLE_HEARTBEAT:
-            print("No posts generated and heartbeats are disabled (DISABLE_HEARTBEAT=1).")
-        else:
-            slug = f"heartbeat-{int(datetime.now(timezone.utc).timestamp())}"
-            title = "Publishing Heartbeat"
-            desc = "This placeholder verifies the workflow and file writes."
-            body = "If you see this, the generator didn't create a topic-based article this run."
-            # Heartbeat saved as draft so it won't publish
-            write_post(slug, title, desc, body, draft=True)
-
-    print(f"Done. Generated {generated} post(s).")
-
-if __name__ == "__main__":
-    main()
+                    max_tokens=2000,_
 

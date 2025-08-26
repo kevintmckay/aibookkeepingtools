@@ -1,0 +1,9 @@
+{{ define "main" }}
+  {{ $pages := where .Site.RegularPages "Section" "posts" }}
+  {{ $pages = where $pages "Draft" "!=" true }}
+  {{ $pages = where $pages "Params.slug" "not in" (slice "heartbeat") }}
+  {{ range $pages }}
+    {{ .Render "summary" }}
+  {{ end }}
+{{ end }}
+
