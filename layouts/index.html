@@ -1,32 +1,68 @@
 {{ define "main" }}
 <main class="container mx-auto px-4 my-8">
-  <header class="mb-8">
-    <h1 class="text-3xl font-semibold">{{ .Site.Title }}</h1>
-    {{ with .Site.Params.description }}<p class="text-neutral-500 mt-2">{{ . }}</p>{{ end }}
-  </header>
 
-  {{/* Grab all posts and paginate newest-first */}}
-  {{ $posts := where .Site.RegularPages "Section" "posts" }}
+  {{/* ---------- Hero ---------- */}}
+  <section class="mb-10">
+    <h1 class="text-4xl font-semibold">{{ .Site.Title }}</h1>
+    <p class="text-neutral-500 mt-2">
+      {{ with .Site.Params.description }}{{ . }}{{ else }}Guides and workflows for automating bookkeeping with AI.{{ end }}
+    </p>
+    <div class="mt-5 flex gap-3">
+      <a class="border rounded-xl px-4 py-2" href="/posts/">Browse all posts →</a>
+      <a class="border rounded-xl px-4 py-2" href="/page/tools/">Tools</a>
+    </div>
+  </section>
+
+  {{/* ---------- Featured post (optional) ---------- */}}
+  {{ $all := where .Site.RegularPages "Section" "posts" }}
+  {{ $featuredList := where $all ".Params.featured" true | first 1 }}
+  {{ $featured := cond (gt (len $featuredList) 0) (index $featuredList 0) nil }}
+
+  {{ if $featured }}
+    <section class="mb-10">
+      <h2 class="text-xl font-medium mb-3">Featured</h2>
+      <article class="border rounded-2xl p-6">
+        <h3 class="text-2xl font-semibold"><a href="{{ $featured.RelPermalink }}">{{ $featured.Title }}</a></h3>
+        <div class="text-sm text-neutral-500 mt-1">
+          {{ with $featured.Date }}{{ .Format "Jan 2, 2006" }}{{ end }} · {{ $featured.ReadingTime }} min read
+          {{ with $featured.Params.tags }} · {{ delimit . ", " }}{{ end }}
+        </div>
+        {{ with $featured.Summary }}<p class="mt-3">{{ . | plainify }}</p>{{ end }}
+        <p class="mt-3"><a href="{{ $featured.RelPermalink }}">Read more →</a></p>
+      </article>
+    </section>
+  {{ end }}
+
+  {{/* ---------- Recent posts (exclude featured) ---------- */}}
+  {{ $posts := $all }}
+  {{ if $featured }}
+    {{/* Filter out the featured post by permalink */}}
+    {{ $posts = where $posts "Permalink" "ne" $featured.Permalink }}
+  {{ end }}
   {{ $ordered := $posts.ByDate.Reverse }}
   {{ $p := .Paginate $ordered }}
 
   {{ if not (gt (len $p.Pages) 0) }}
     <p>No posts yet.</p>
   {{ else }}
-    <div class="grid gap-6">
-      {{ range $p.Pages }}
-        <article class="border rounded-xl p-5">
-          <h2 class="text-2xl font-medium"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-          <div class="text-sm text-neutral-500 mt-1">
-            {{ with .Date }}{{ .Format "Jan 2, 2006" }}{{ end }} · {{ .ReadingTime }} min read
-          </div>
-          {{ with .Summary }}<p class="mt-3">{{ . | plainify }}</p>{{ end }}
-          <p class="mt-3"><a href="{{ .RelPermalink }}">Read more →</a></p>
-        </article>
-      {{ end }}
-    </div>
+    <section>
+      <h2 class="text-xl font-medium mb-3">Latest</h2>
+      <div class="grid gap-6">
+        {{ range $p.Pages }}
+          <article class="border rounded-xl p-5">
+            <h3 class="text-2xl font-medium"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+            <div class="text-sm text-neutral-500 mt-1">
+              {{ with .Date }}{{ .Format "Jan 2, 2006" }}{{ end }} · {{ .ReadingTime }} min read
+              {{ with .Params.tags }} · {{ delimit . ", " }}{{ end }}
+            </div>
+            {{ with .Summary }}<p class="mt-3">{{ . | plainify }}</p>{{ end }}
+            <p class="mt-3"><a href="{{ .RelPermalink }}">Read more →</a></p>
+          </article>
+        {{ end }}
+      </div>
 
-    {{ template "_internal/pagination.html" . }}
+      {{ template "_internal/pagination.html" . }}
+    </section>
   {{ end }}
 </main>
 {{ end }}
