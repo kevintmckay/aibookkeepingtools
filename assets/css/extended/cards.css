@@ -1,0 +1,39 @@
+/* Card styling for list pages (home + /posts/) */
+.list main .grid article {
+  background: var(--entry);           /* PaperMod variable, light = white, dark = dark gray */
+  border: 1px solid var(--border);    /* subtle border for separation */
+  border-radius: 1rem;                /* ~rounded-xl */
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+}
+
+/* Spacing between cards (grid gap is good, but reinforce on small screens) */
+.list main .grid article + article {
+  margin-top: 0.25rem;
+}
+
+/* Tweak typography inside cards */
+.list main .grid article h2,
+.list main .grid article h3 {
+  margin: 0;
+  line-height: 1.25;
+}
+
+.list main .grid article .text-neutral-500 {
+  opacity: .9;                         /* slightly brighter for readability */
+}
+
+/* Hover lift, very subtle */
+@media (hover:hover) {
+  .list main .grid article:hover {
+    transform: translateY(-1px);
+    transition: transform 140ms ease, box-shadow 140ms ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+}
+
+/* Ensure summary paragraphs don’t run together */
+.list main .grid article p {
+  margin-top: .75rem;
+  margin-bottom: 0;
+}
+
