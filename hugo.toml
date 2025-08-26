@@ -1,26 +1,81 @@
 baseURL = "https://aibookkeepingtools.com/"
+title   = "AI Bookkeeping Tools"
+theme   = "PaperMod"
 languageCode = "en-us"
-title = "AI Bookkeeping Tools"
-theme = "PaperMod"
-enableRobotsTXT = true
-buildFuture = true
-buildDrafts = false
 
-[pagination]
-  pagerSize = 12
+# Build settings
+buildDrafts  = false
+buildFuture  = true
+buildExpired = false
+paginate     = 10
+
+# Sitemap + robots
+[outputs]
+  home = ["HTML", "RSS", "SITEMAP"]
 
 [params]
-  defaultTheme = "auto"
-  ShowReadingTime = true
-  ShowShareButtons = true
+  env              = "production"
+  description      = "Guides, reviews, and tutorials on AI bookkeeping tools, QuickBooks automations, and receipt OCR."
+  author           = "AI Bookkeeping Tools"
+  defaultTheme     = "auto"    # dark, light, or auto
+  mainSections     = ["posts"]
+
+  # UI features
   ShowPostNavLinks = true
-  showtoc = true
-  tocopen = true
-  description = "Compare and master AI bookkeeping software, workflows, and tutorials."
+  ShowShareButtons = true
+  ShowReadingTime  = true
+  ShowToc          = true
+  ShowBreadCrumbs  = true
+  comments         = false
 
-[markup.goldmark.renderer]
-  unsafe = true
+  # SEO / meta
+  disableSpecial1stPost = false
+  hideMeta              = false
+  showMeta              = true
 
-[minify]
-  minifyOutput = true
+  # Assets (optional placeholders – replace if you add)
+  assets = { favicon = "/favicon.ico", apple_touch_icon = "/apple-touch-icon.png" }
+
+# Menus
+[menu]
+
+  [[menu.main]]
+    name  = "Posts"
+    url   = "/posts/"
+    weight = 10
+
+  [[menu.main]]
+    name  = "Tools"
+    url   = "/page/tools/"
+    weight = 20
+
+  [[menu.main]]
+    name  = "About"
+    url   = "/page/about/"
+    weight = 30
+
+  [[menu.main]]
+    name  = "Contact"
+    url   = "/page/contact/"
+    weight = 40
+
+# Taxonomies
+[taxonomies]
+  tag      = "tags"
+  category = "categories"
+
+# Privacy (good for GDPR/SEO hygiene)
+[privacy]
+  [privacy.googleAnalytics]
+    anonymizeIP = true
+  [privacy.youtube]
+    privacyEnhanced = true
+
+# Markup config (summaries, gold for PaperMod)
+[markup]
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel   = 4
 
