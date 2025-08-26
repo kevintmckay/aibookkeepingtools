@@ -80,7 +80,7 @@ def call_openai(model, messages, max_tokens=4000, temperature=0.5):
         model=model,
         messages=messages,
         temperature=temperature,
-        max_tokens=max_tokens
+        max_completion_tokens=max_tokens
     )
     return resp.choices[0].message.content
 
