@@ -1,5 +1,3 @@
-mkdir -p scripts
-cat > scripts/generate_posts.py <<'PY'
 #!/usr/bin/env python3
 import os, re, json, pathlib, datetime, yaml
 from typing import List, Dict, Any
@@ -207,10 +205,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-PY
-
-chmod +x scripts/generate_posts.py
-git add scripts/generate_posts.py
-git commit -m "chore(generator): hardened — always writes, past-dated, auto-suffix slugs, clear logs"
-git push
-
