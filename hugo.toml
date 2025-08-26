@@ -7,7 +7,6 @@ languageCode = "en-us"
 buildDrafts  = false
 buildFuture  = true
 buildExpired = false
-paginate     = 10
 
 # Sitemap + robots
 [outputs]
@@ -79,3 +78,6 @@ paginate     = 10
     startLevel = 2
     endLevel   = 4
 
+
+[pagination]
+  pagerSize = 10
