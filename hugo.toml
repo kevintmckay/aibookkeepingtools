@@ -33,6 +33,7 @@ enableRobotsTXT = true
   author           = "AI Bookkeeping Tools"
   defaultTheme     = "auto"
   mainSections     = ["posts"]
+  summaryLength = 30   # number of words Hugo uses for .Summary
 
   # UI features
   ShowPostNavLinks = true
