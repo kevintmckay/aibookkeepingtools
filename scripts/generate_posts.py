@@ -1,37 +1,66 @@
-#!/usr/bin/env python3
-import os, re, json, pathlib, datetime, yaml
-from typing import List, Dict, Any
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
+"""
+Robust generator: writes 1–2 posts/day from topics.yaml
+
+Env:
+  OPENAI_API_KEY     (required)
+  POSTS_PER_RUN      default "2"
+  MODEL_OUTLINE      default "gpt-5-mini"
+  MODEL_DRAFT        default "gpt-5-mini"
+  DISABLE_HEARTBEAT  set to "1" / "true" to skip heartbeat files entirely
+"""
+
+import os, re, json, pathlib, time, sys, math
+from typing import List, Dict, Any, Optional
+from datetime import datetime, timedelta, timezone
+import yaml
+
+# --- Paths & config ---
 REPO_ROOT   = pathlib.Path(__file__).resolve().parent.parent
 CONTENT_DIR = REPO_ROOT / "content" / "posts"
 TOPICS_FILE = REPO_ROOT / "topics.yaml"
 
-POSTS_PER_RUN = int(os.getenv("POSTS_PER_RUN", "2"))
-MODEL_OUTLINE = os.getenv("MODEL_OUTLINE", "gpt-5-mini")
-MODEL_DRAFT   = os.getenv("MODEL_DRAFT",   "gpt-5")
+def _int(env_name: str, default: int) -> int:
+    try:
+        return int(os.getenv(env_name, str(default)))
+    except Exception:
+        return default
+
+POSTS_PER_RUN       = _int("POSTS_PER_RUN", 2)
+MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-5-mini")
+MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-5-mini")
+DISABLE_HEARTBEAT   = os.getenv("DISABLE_HEARTBEAT", "").strip().lower() in ("1","true","yes")
 
 # --- OpenAI client ---
 try:
     from openai import OpenAI
+    from openai._exceptions import (
+        APITimeoutError, APIConnectionError, RateLimitError, APIError
+    )
 except Exception as e:
-    raise SystemExit("Missing 'openai' package. In CI it installs automatically. Locally: pip install openai pyyaml") from e
+    raise SystemExit("Missing 'openai' package. In venv: pip install openai pyyaml") from e
 
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
-    raise SystemExit("OPENAI_API_KEY not set.")
-client = OpenAI(api_key=api_key)
+    raise SystemExit("OPENAI_API_KEY not set")
 
+client = OpenAI(api_key=api_key, timeout=30.0)  # client-level timeout
+
+# --- Helpers ---
 def slugify(s: str) -> str:
     s = s.strip().lower()
     s = re.sub(r"[^\w\s-]", "", s)
     s = re.sub(r"[\s_]+", "-", s)
     s = re.sub(r"-{2,}", "-", s)
-    return s.strip("-")[:80]
+    return s.strip("-")[:80] or "post"
 
 SYSTEM_EDITOR = (
     "You are a senior technical editor specializing in AI + bookkeeping/accounting. "
     "Write with precision and practical steps. Use Markdown with H2/H3, bullets, short paragraphs. "
-    "Cite 3–5 reputable sources inline. Avoid fluff and clickbait. Ensure accuracy."
+    "Cite 3–5 reputable sources inline (official docs, vendor docs, gov, recognized publishers). "
+    "Avoid fluff and clickbait. Ensure accuracy."
 )
 
 OUTLINE_PROMPT_TMPL = """Create a concise brief and outline for a post.
@@ -63,21 +92,79 @@ Guidelines:
 - Include a short "Quick Start" section.
 - Add a "Pitfalls & Gotchas" section.
 - Include 3–5 authoritative citations inline as Markdown links.
-- Add a 5-item FAQ at the end.
+- Add a 5-item FAQ at the end (use/refine provided Q/A).
 - Use H2/H3 headings. Keep paragraphs short. Avoid fluff.
 
 Return ONLY the Markdown body (no front matter, no backticks).
 """
 
-def call_openai(model: str, messages: List[Dict[str, str]], max_tokens: int = 3000) -> str:
-    kwargs: Dict[str, Any] = {"model": model, "messages": messages}
-    if model.startswith("gpt-5"):
-        kwargs["max_completion_tokens"] = max_tokens  # new param for GPT-5 family
+def supports_json_mode(model: str) -> bool:
+    return any(model.startswith(p) for p in ("gpt-5", "gpt-4o", "gpt-4.1"))
+
+def _is_modern_model(model: str) -> bool:
+    return model.startswith(("gpt-5", "gpt-4o", "gpt-4.1"))
+
+# --- Hardened API wrapper with retries/backoff ---
+RETRYABLE = (APITimeoutError, APIConnectionError, RateLimitError, APIError)
+
+def _sleep_backoff(attempt: int) -> None:
+    delay = min(2 ** attempt, 30) + 0.25 * math.sin(attempt)  # jitter
+    time.sleep(delay)
+
+def chat_with_retry(
+    *,
+    model: str,
+    messages: List[Dict[str, str]],
+    max_tokens: int,
+    timeout: int = 60,
+    json_mode: bool = False,
+    max_retries: int = 5,
+) -> str:
+    kwargs: Dict[str, Any] = {"model": model, "messages": messages, "timeout": timeout}
+    if json_mode and supports_json_mode(model):
+        kwargs["response_format"] = {"type": "json_object"}
+
+    if _is_modern_model(model):
+        kwargs["max_completion_tokens"] = max_tokens
     else:
         kwargs["max_tokens"] = max_tokens
         kwargs["temperature"] = 1.0
-    resp = client.chat.completions.create(**kwargs)
-    return resp.choices[0].message.content
+
+    attempt = 0
+    while True:
+        try:
+            resp = client.chat.completions.create(**kwargs)
+            return (resp.choices[0].message.content or "").strip()
+        except RETRYABLE as e:
+            attempt += 1
+            if attempt > max_retries:
+                print(f"[chat_call] {model} ({'json' if json_mode else 'plain'}) error: {repr(e)} (giving up)", file=sys.stderr)
+                return ""
+            print(f"[warn] API issue: {e.__class__.__name__} (attempt {attempt}/{max_retries}); backing off...", file=sys.stderr)
+            _sleep_backoff(attempt)
+        except Exception as e:
+            print(f"[chat_call] {model} unexpected error: {repr(e)}", file=sys.stderr)
+            return ""
+
+def robust_json(text: str) -> Dict[str, Any]:
+    text = (text or "").strip()
+    if not text:
+        raise ValueError("empty response")
+    try:
+        return json.loads(text)
+    except Exception:
+        m = re.search(r"\{.*\}", text, flags=re.S)
+        if not m:
+            raise
+        return json.loads(m.group(0))
+
+def backoff_sleep(i: int):
+    time.sleep(min(2**i, 8))
+
+def now_past_iso() -> str:
+    # 5 minutes in the past, timezone-aware, with Z suffix for Hugo
+    return (datetime.now(timezone.utc) - timedelta(minutes=5)) \
+        .isoformat(timespec="seconds").replace("+00:00", "Z")
 
 def load_topics():
     if not TOPICS_FILE.exists():
@@ -89,21 +176,18 @@ def existing_slugs():
     CONTENT_DIR.mkdir(parents=True, exist_ok=True)
     return {p.stem for p in CONTENT_DIR.glob("*.md")}
 
-def now_past_iso():
-    return (datetime.datetime.utcnow() - datetime.timedelta(minutes=5)).isoformat(timespec="seconds") + "Z"
-
-def front_matter(title, slug, description):
+def front_matter(title: str, slug: str, description: str, *, draft: bool=False) -> str:
     description = (description or f"{title} — a practical guide.").strip()
     if len(description) > 155:
         description = description[:152].rstrip() + "..."
     fm = {
         "title": title,
-        "date": now_past_iso(),  # 5 minutes in the past
+        "date": now_past_iso(),
         "slug": slug,
         "description": description,
         "tags": ["AI", "Bookkeeping", "Accounting", "Tools"],
         "categories": ["Guides"],
-        "draft": False,
+        "draft": draft,
     }
     lines = ["---"]
     for k, v in fm.items():
@@ -114,21 +198,61 @@ def front_matter(title, slug, description):
     lines.append("---")
     return "\n".join(lines)
 
-def robust_json(s: str) -> Dict[str, Any]:
-    try:
-        return json.loads(s)
-    except Exception:
-        import re
-        m = re.search(r"\{.*\}", s, flags=re.S)
-        if not m:
-            raise
-        return json.loads(m.group(0))
-
-def write_post(slug: str, title: str, description: str, body_md: str):
+def write_post(slug: str, title: str, description: str, body_md: str, *, draft: bool=False):
     CONTENT_DIR.mkdir(parents=True, exist_ok=True)
     out = CONTENT_DIR / f"{slug}.md"
-    out.write_text(front_matter(title, slug, description) + "\n\n" + body_md.strip() + "\n", encoding="utf-8")
+    out.write_text(front_matter(title, slug, description, draft=draft) + "\n\n" + body_md.strip() + "\n", encoding="utf-8")
     print(f"Wrote: {out.relative_to(REPO_ROOT)}")
+
+def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, Any]]:
+    """Try outline across models & modes with retries."""
+    prompt = OUTLINE_PROMPT_TMPL.format(keyword=keyword, audience=audience, intent=intent)
+    messages = [{"role": "system", "content": SYSTEM_EDITOR},
+                {"role": "user", "content": prompt}]
+
+    models_try = [MODEL_OUTLINE_ENV, "gpt-5-mini", "gpt-4o-mini"]
+    tried = set()
+
+    for model in models_try:
+        if not model or model in tried:
+            continue
+        tried.add(model)
+
+        # 1) JSON mode
+        for attempt in range(3):
+            txt = chat_with_retry(
+                model=model,
+                messages=messages,
+                max_tokens=1000,
+                timeout=45,
+                json_mode=True,
+                max_retries=5,
+            )
+            if txt:
+                try:
+                    return robust_json(txt)
+                except Exception:
+                    print(f"Failed JSON parse (model={model}, attempt={attempt+1}); first 200 chars:\n{txt[:200]}", file=sys.stderr)
+            backoff_sleep(attempt)
+
+        # 2) Plain mode, then extract JSON
+        for attempt in range(3):
+            txt = chat_with_retry(
+                model=model,
+                messages=messages,
+                max_tokens=1000,
+                timeout=45,
+                json_mode=False,
+                max_retries=5,
+            )
+            if txt:
+                try:
+                    return robust_json(txt)
+                except Exception:
+                    print(f"Failed plain-parse (model={model}, attempt={attempt+1}); first 200 chars:\n{txt[:200]}", file=sys.stderr)
+            backoff_sleep(attempt)
+
+    return None
 
 def main():
     topics = load_topics()
@@ -145,17 +269,10 @@ def main():
         audience = (topic.get("audience") or "Small business owners").strip()
         intent   = (topic.get("intent")   or "How-to tutorial").strip()
 
-        # A) Outline
-        try:
-            outline_json = call_openai(
-                MODEL_OUTLINE,
-                [{"role": "system", "content": SYSTEM_EDITOR},
-                 {"role": "user", "content": OUTLINE_PROMPT_TMPL.format(keyword=keyword, audience=audience, intent=intent)}],
-                max_tokens=1200
-            )
-            plan = robust_json(outline_json)
-        except Exception as e:
-            print("Outline generation failed:", repr(e))
+        # --- Outline ---
+        plan = get_outline(keyword, audience, intent)
+        if not plan:
+            print(f"Outline failed for: {keyword}", file=sys.stderr)
             continue
 
         title   = (plan.get("working_title") or keyword.title()).strip()
@@ -163,23 +280,38 @@ def main():
         outline_list = plan.get("outline") or []
         faqs = plan.get("faqs") or []
 
-        base_slug = slugify(title) or slugify(keyword) or f"post-{int(datetime.datetime.utcnow().timestamp())}"
-        slug = base_slug if base_slug not in used else f"{base_slug}-{int(datetime.datetime.utcnow().timestamp())}"
+        base_slug = slugify(title) or slugify(keyword)
+        slug = base_slug if base_slug not in used else f"{base_slug}-{int(datetime.now(timezone.utc).timestamp())}"
 
-        # B) Draft
         outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Steps\n- Conclusion"
-        try:
-            body_md = call_openai(
-                MODEL_DRAFT,
-                [{"role": "system", "content": SYSTEM_EDITOR},
-                 {"role": "user", "content": DRAFT_PROMPT_TMPL.format(working_title=title, summary=summary, outline_md=outline_md)}],
-                max_tokens=5000
-            ).strip()
-        except Exception as e:
-            print("Draft generation failed:", repr(e))
+
+        # --- Draft ---
+        draft_models = [MODEL_DRAFT_ENV, "gpt-5-mini", "gpt-4o-mini"]
+        body_md = ""
+        for model in draft_models:
+            for attempt in range(3):
+                body_md = chat_with_retry(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": SYSTEM_EDITOR},
+                        {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
+                            working_title=title, summary=summary, outline_md=outline_md)}
+                    ],
+                    max_tokens=2000,   # ~1.5–2k tokens output target
+                    timeout=90,
+                    json_mode=False,
+                    max_retries=5,
+                )
+                if body_md:
+                    break
+                backoff_sleep(attempt)
+            if body_md:
+                break
+
+        if not body_md:
+            print(f"Draft failed for: {title}", file=sys.stderr)
             continue
 
-        # Ensure FAQ presence
         if faqs and ("## FAQ" not in body_md and "### FAQ" not in body_md):
             faq_md = ["\n\n## FAQ"]
             for qa in faqs[:5]:
@@ -193,15 +325,19 @@ def main():
         used.add(slug)
         generated += 1
 
-    # Fallback: write a heartbeat post if nothing was generated (helps diagnose CI)
     if generated == 0:
-        slug = f"heartbeat-{int(datetime.datetime.utcnow().timestamp())}"
-        title = "Publishing Heartbeat"
-        desc = "This placeholder verifies the daily workflow and file writes."
-        body = "If you see this, the generator didn't create a topic-based article this run."
-        write_post(slug, title, desc, body)
+        if DISABLE_HEARTBEAT:
+            print("No posts generated and heartbeats are disabled (DISABLE_HEARTBEAT=1).")
+        else:
+            slug = f"heartbeat-{int(datetime.now(timezone.utc).timestamp())}"
+            title = "Publishing Heartbeat"
+            desc = "This placeholder verifies the workflow and file writes."
+            body = "If you see this, the generator didn't create a topic-based article this run."
+            # Heartbeat saved as draft so it won't publish
+            write_post(slug, title, desc, body, draft=True)
 
     print(f"Done. Generated {generated} post(s).")
 
 if __name__ == "__main__":
     main()
+
