@@ -54,20 +54,47 @@ jobs:
             sleep $(( attempts * 10 ))   # 10s, 20s, 30s, ...
           done
 
-      - name: Commit & push new posts
+      - name: Commit & rebase-push new posts
         id: commit
         run: |
           set -euo pipefail
           git config user.name  "Content Bot"
           git config user.email "bot@users.noreply.github.com"
+
+          # Stage only posts (avoid committing incidental files)
           git add content/posts/*.md || true
+
+          # If nothing staged, exit early
           if git diff --cached --quiet; then
             echo "No changes to commit."
             echo "changed=0" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+
           git commit -m "chore: daily AI posts"
-          git push
+
+          # Rebase on latest main to avoid non-fast-forward push errors
+          git fetch origin main
+          if ! git rebase origin/main; then
+            echo "Rebase conflict. Aborting rebase."
+            git rebase --abort
+            exit 1
+          fi
+
+          # Push (retry once to handle races)
+          tries=0
+          until git push origin HEAD:main; do
+            tries=$((tries+1))
+            if [ $tries -ge 2 ]; then
+              echo "Push still failing after rebase and retry."
+              exit 1
+            fi
+            echo "Push race detected, refetching and rebasing then retrying..."
+            git fetch origin main
+            git rebase origin/main || { git rebase --abort; exit 1; }
+            sleep 3
+          done
+
           echo "changed=1" >> "$GITHUB_OUTPUT"
 
       - name: Collect URLs to verify
@@ -87,7 +114,6 @@ jobs:
           done < /tmp/changed_files.txt
           echo "URLs to verify:"
           cat /tmp/urls.txt || true
-          # Expose a flag for next step
           if [ -s /tmp/urls.txt ]; then
             echo "have_urls=1" >> "$GITHUB_OUTPUT"
           else
@@ -101,7 +127,6 @@ jobs:
           BASE_URL="https://aibookkeepingtools.com"
           SITEMAP="${BASE_URL}/sitemap.xml"
 
-          # Retry up to ~10 minutes (20 * 30s)
           tries=0
           max=20
           ok=0
