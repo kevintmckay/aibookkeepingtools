@@ -7,16 +7,31 @@ languageCode = "en-us"
 buildDrafts  = false
 buildFuture  = true
 buildExpired = false
+enableRobotsTXT = true
 
-# Sitemap + robots
+# Hugo 0.128+ pagination key (replaces deprecated 'paginate')
+[pagination]
+  pagerSize = 10
+
+# Ensure all kinds are emitted (incl. full sitemap)
 [outputs]
-  home = ["HTML", "RSS", "SITEMAP"]
+  home    = ["HTML", "RSS", "Sitemap"]
+  section = ["HTML", "RSS"]
+  page    = ["HTML"]
+  taxonomy = ["HTML", "RSS"]
+  term     = ["HTML", "RSS"]
+
+# Sitemap settings (use Hugo’s built-in generator)
+[sitemap]
+  changefreq = "weekly"
+  priority   = 0.5
+  filename   = "sitemap.xml"
 
 [params]
   env              = "production"
   description      = "Guides, reviews, and tutorials on AI bookkeeping tools, QuickBooks automations, and receipt OCR."
   author           = "AI Bookkeeping Tools"
-  defaultTheme     = "auto"    # dark, light, or auto
+  defaultTheme     = "auto"
   mainSections     = ["posts"]
 
   # UI features
@@ -32,12 +47,13 @@ buildExpired = false
   hideMeta              = false
   showMeta              = true
 
-  # Assets (optional placeholders – replace if you add)
-  assets = { favicon = "/favicon.ico", apple_touch_icon = "/apple-touch-icon.png" }
+  # Assets
+  [params.assets]
+    favicon = "/favicon.ico"
+    apple_touch_icon = "/apple-touch-icon.png"
 
 # Menus
 [menu]
-
   [[menu.main]]
     name  = "Posts"
     url   = "/posts/"
@@ -63,14 +79,14 @@ buildExpired = false
   tag      = "tags"
   category = "categories"
 
-# Privacy (good for GDPR/SEO hygiene)
+# Privacy
 [privacy]
   [privacy.googleAnalytics]
     anonymizeIP = true
   [privacy.youtube]
     privacyEnhanced = true
 
-# Markup config (summaries, gold for PaperMod)
+# Markup
 [markup]
   [markup.goldmark.renderer]
     unsafe = true
@@ -78,6 +94,3 @@ buildExpired = false
     startLevel = 2
     endLevel   = 4
 
-
-[pagination]
-  pagerSize = 10
