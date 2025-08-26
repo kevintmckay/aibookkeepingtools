@@ -2,8 +2,8 @@ name: daily-content
 
 on:
   schedule:
-    # 09:15 AM US/Pacific ≈ 16:15 UTC
-    - cron: "15 16 * * *"
+    # 01:00 PM US/Pacific ≈ 21:00 UTC
+    - cron: "0 21 * * *"
   workflow_dispatch: {}
 
 permissions:
