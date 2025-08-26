@@ -1,11 +1,14 @@
 {{ define "main" }}
 <main class="container mx-auto px-4 my-8">
   <header class="mb-8">
-    <h1 class="text-3xl font-semibold">{{ .Title }}</h1>
+    <h1 class="text-3xl font-semibold">{{ .Title | default "Posts" }}</h1>
     {{ with .Description }}<p class="text-neutral-500 mt-2">{{ . }}</p>{{ end }}
   </header>
 
-  {{ $p := .Paginate (where .RegularPages "Type" "posts") }}
+  {{/* Use all regular pages in this section, sorted newest-first. Avoid filtering by Type. */}}
+  {{ $ordered := .RegularPages.ByDate.Reverse }}
+  {{ $p := .Paginate $ordered }}
+
   {{ if not (gt (len $p.Pages) 0) }}
     <p>No posts found.</p>
   {{ else }}
@@ -16,9 +19,9 @@
             <a href="{{ .RelPermalink }}">{{ .Title }}</a>
           </h2>
           <div class="text-sm text-neutral-500 mt-1">
-            {{ .Date.Format "Jan 2, 2006" }} · {{ .ReadingTime }} min read
+            {{ with .Date }}{{ .Format "Jan 2, 2006" }}{{ end }} · {{ .ReadingTime }} min read
           </div>
-          <p class="mt-3">{{ .Summary | plainify }}</p>
+          {{ with .Summary }}<p class="mt-3">{{ . | plainify }}</p>{{ end }}
           <p class="mt-3"><a href="{{ .RelPermalink }}">Read more →</a></p>
         </article>
       {{ end }}
@@ -28,3 +31,4 @@
   {{ end }}
 </main>
 {{ end }}
+
