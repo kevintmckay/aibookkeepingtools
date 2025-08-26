@@ -1,0 +1,26 @@
+name: Rebuild Site
+
+on:
+  workflow_dispatch: {}   # manual trigger only
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Touch build bump
+        run: |
+          date +%s > .build-bump
+          git config user.name  "Content Bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add .build-bump
+          git commit -m "chore: force clean rebuild" || echo "No changes"
+          git push
+
