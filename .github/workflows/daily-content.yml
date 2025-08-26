@@ -62,10 +62,9 @@ jobs:
           git config user.name  "Content Bot"
           git config user.email "bot@users.noreply.github.com"
 
-          # Stage ALL changes the generator may produce (posts + topics files, etc.)
+          # Stage ALL changes (posts + topics files, etc.)
           git add -A
 
-          # If nothing staged, exit early
           if git diff --cached --quiet; then
             echo "No changes to commit."
             echo "changed=0" >> "$GITHUB_OUTPUT"
@@ -74,16 +73,15 @@ jobs:
 
           git commit -m "chore: daily AI posts"
 
-          # Fold in any new changes that appeared between add & commit
+          # Fold in any files that changed between add & commit
           git add -A
           if ! git diff --cached --quiet; then
             git commit --amend --no-edit
           fi
 
-          # Ensure a clean tree before rebase (remove untracked leftovers)
+          # Ensure clean tree before rebase
           git clean -fd
 
-          # Rebase on latest main to avoid non-fast-forward errors
           git fetch origin main
           if ! git rebase origin/main; then
             echo "Rebase conflict. Aborting rebase."
@@ -91,7 +89,7 @@ jobs:
             exit 1
           fi
 
-          # Push (retry once to handle races)
+          # Push (retry once)
           tries=0
           until git push origin HEAD:main; do
             tries=$((tries+1))
@@ -112,20 +110,29 @@ jobs:
         if: steps.commit.outputs.changed == '1'
         run: |
           set -euo pipefail
-          # Files in the last commit
-          git log -1 --name-only --pretty="" | grep '^content/posts/.*\.md$' || true > /tmp/changed_files.txt
-          # Build full URLs for sitemap check
+
+          TMPDIR="$(mktemp -d)"
+          CHANGED="$TMPDIR/changed_files.txt"
+          URLS="$TMPDIR/urls.txt"
           BASE_URL="https://aibookkeepingtools.com"
-          : > /tmp/urls.txt
+
+          # Capture changed post files from the last commit
+          { git log -1 --name-only --pretty="" | grep -E '^content/posts/.*\.md$' || true; } > "$CHANGED"
+
+          # Build full URLs for sitemap check
+          : > "$URLS"
           while read -r f; do
-            [ -z "$f" ] && continue
+            [ -z "${f:-}" ] && continue
             slug="$(basename "$f" .md)"
-            echo "${BASE_URL}/posts/${slug}/" >> /tmp/urls.txt
-          done < /tmp/changed_files.txt
+            echo "${BASE_URL}/posts/${slug}/" >> "$URLS"
+          done < "$CHANGED"
+
           echo "URLs to verify:"
-          cat /tmp/urls.txt || true
-          if [ -s /tmp/urls.txt ]; then
+          cat "$URLS" || true
+
+          if [ -s "$URLS" ]; then
             echo "have_urls=1" >> "$GITHUB_OUTPUT"
+            echo "urls_file=$URLS" >> "$GITHUB_OUTPUT"
           else
             echo "have_urls=0" >> "$GITHUB_OUTPUT"
           fi
@@ -136,6 +143,8 @@ jobs:
           set -euo pipefail
           BASE_URL="https://aibookkeepingtools.com"
           SITEMAP="${BASE_URL}/sitemap.xml"
+
+          urls_file="${{ steps.urls.outputs.urls_file }}"
 
           tries=0
           max=20
@@ -148,10 +157,10 @@ jobs:
             else
               missing=0
               while read -r url; do
-                [ -z "$url" ] && continue
+                [ -z "${url:-}" ] && continue
                 echo "  Checking: $url"
                 echo "$map" | grep -F "$url" >/dev/null || missing=$((missing+1))
-              done < /tmp/urls.txt
+              done < "$urls_file"
 
               if [ $missing -eq 0 ]; then
                 echo "All new URLs found in sitemap ✅"
@@ -167,7 +176,6 @@ jobs:
 
           if [ $ok -ne 1 ]; then
             echo "Sitemap did not include all new URLs within the wait window."
-            echo "This can happen if the build is still in progress — check Cloudflare Pages."
             exit 1
           fi
 
