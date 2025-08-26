@@ -19,9 +19,10 @@ from datetime import datetime, timedelta, timezone
 import yaml
 
 # --- Paths & config ---
-REPO_ROOT   = pathlib.Path(__file__).resolve().parent.parent
-CONTENT_DIR = REPO_ROOT / "content" / "posts"
-TOPICS_FILE = REPO_ROOT / "topics.yaml"
+REPO_ROOT       = pathlib.Path(__file__).resolve().parent.parent
+CONTENT_DIR     = REPO_ROOT / "content" / "posts"
+TOPICS_FILE     = REPO_ROOT / "topics.yaml"
+TOPICS_DONE_FILE= REPO_ROOT / "topics_done.yaml"
 
 def _int(env_name: str, default: int) -> int:
     try:
@@ -168,11 +169,54 @@ def now_past_iso() -> str:
     return (datetime.now(timezone.utc) - timedelta(minutes=5)) \
         .isoformat(timespec="seconds").replace("+00:00", "Z")
 
-def load_topics():
-    if not TOPICS_FILE.exists():
-        return []
-    data = yaml.safe_load(TOPICS_FILE.read_text(encoding="utf-8")) or {}
+# --- Topics IO ---
+def _yaml_read(path: pathlib.Path) -> dict:
+    if not path.exists():
+        return {}
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+def _yaml_write_atomic(path: pathlib.Path, data: dict):
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8")
+    tmp.replace(path)
+
+def load_topics() -> List[dict]:
+    data = _yaml_read(TOPICS_FILE)
     return data.get("topics", [])
+
+def save_topics(topics: List[dict]):
+    _yaml_write_atomic(TOPICS_FILE, {"topics": topics})
+
+def append_topic_done(record: dict):
+    data = _yaml_read(TOPICS_DONE_FILE)
+    done = data.get("topics_done", [])
+    done.append(record)
+    _yaml_write_atomic(TOPICS_DONE_FILE, {"topics_done": done})
+
+def mark_topic_done(original_topic: dict, *, slug: str, title: str):
+    """
+    Remove the first matching topic (by keyword) from topics.yaml and
+    append a record to topics_done.yaml with metadata.
+    """
+    kw = (original_topic.get("keyword") or "").strip()
+    topics = load_topics()
+    new_topics = []
+    removed = False
+    for t in topics:
+        if not removed and (t.get("keyword") or "").strip() == kw:
+            removed = True
+            continue
+        new_topics.append(t)
+    if removed:
+        save_topics(new_topics)
+    append_topic_done({
+        "keyword": kw,
+        "slug": slug,
+        "title": title,
+        "date": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+        "audience": original_topic.get("audience"),
+        "intent": original_topic.get("intent"),
+    })
 
 def existing_slugs() -> set:
     CONTENT_DIR.mkdir(parents=True, exist_ok=True)
@@ -284,12 +328,12 @@ def main():
 
         base_slug = slugify(title) or slugify(keyword)
 
-        # Skip if a post with this base slug already exists
+        # Duplicate handling
         if base_slug in used and not ALLOW_DUP_SLUG:
             print(f"[skip] Duplicate slug detected, skipping topic: {keyword!r} -> slug {base_slug!r}")
+            # Also mark as done so it doesn't keep trying in future runs
+            mark_topic_done(topic, slug=base_slug, title=title)
             continue
-
-        # Optional: allow duplicates with timestamp suffix
         if base_slug in used and ALLOW_DUP_SLUG:
             base_slug = f"{base_slug}-{int(datetime.now(timezone.utc).timestamp())}"
 
@@ -336,11 +380,17 @@ def main():
         used.add(slug)
         generated += 1
 
+        # Mark topic as done immediately (atomic update)
+        try:
+            mark_topic_done(topic, slug=slug, title=title)
+            print(f"[done] Removed from topics.yaml and recorded in topics_done.yaml: {keyword!r}")
+        except Exception as e:
+            print(f"[warn] Failed to mark topic done for {keyword!r}: {e}", file=sys.stderr)
+
     if generated == 0:
-        msg = "No posts generated this run (no heartbeat will be written)."
+        msg = "No posts generated this run."
         print(msg)
         if FAIL_ON_EMPTY:
-            # non-zero exit so CI can alert/fail if desired
             raise SystemExit(2)
 
     print(f"Done. Generated {generated} post(s).")
