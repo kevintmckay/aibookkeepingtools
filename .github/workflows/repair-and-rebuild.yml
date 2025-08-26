@@ -1,14 +1,10 @@
 name: Repair & Rebuild (Cloudflare Pages)
 
 on:
-  workflow_dispatch: {}   # run manually from the Actions tab
+  workflow_dispatch: {}
 
 permissions:
-  contents: write         # needed to push fixes/bumps to main
-
-concurrency:
-  group: repair-rebuild
-  cancel-in-progress: false
+  contents: write
 
 jobs:
   repair_rebuild:
@@ -21,78 +17,72 @@ jobs:
           persist-credentials: true
 
       - name: Configure Git identity
+        shell: bash
         run: |
-          git config user.name  "Content Bot"
+          git config user.name "Content Bot"
           git config user.email "bot@users.noreply.github.com"
 
-      - name: Sanity/repair: remove submodule & vendor PaperMod (idempotent)
+      - name: Remove submodule traces (idempotent)
         shell: bash
         run: |
           set -euo pipefail
-          changed=0
-
-          echo "==> Step 1: remove submodule traces (if any)"
-          # Deinit + remove submodule working tree if present
           git submodule deinit -f themes/PaperMod 2>/dev/null || true
           git rm -f themes/PaperMod 2>/dev/null || true
           rm -rf .git/modules/themes/PaperMod || true
 
-          # If .gitmodules exists and mentions PaperMod, drop that block/file
           if [ -f .gitmodules ]; then
-            cp .gitmodules .gitmodules.bak || true
             sed -i '/^\[submodule "themes\/PaperMod"\]/,/^\s*$/d' .gitmodules
-            if ! grep -q '[^[:space:]]' .gitmodules; then
-              # file is empty -> remove it from Git
-              if git ls-files --error-unmatch .gitmodules >/dev/null 2>&1; then
-                git rm -f .gitmodules
-                changed=1
-              else
-                rm -f .gitmodules
-              fi
+            # If file became empty, remove it from git; else re-add changes
+            if [ ! -s .gitmodules ]; then
+              git rm -f .gitmodules || rm -f .gitmodules
             else
-              # still has content -> update tracked file
               git add .gitmodules
-              changed=1
             fi
           fi
 
-          # Scrub repo config keys if any remain
-          git config --remove-section submodule.themes/PaperMod 2>/dev/null && changed=1 || true
+          git config --remove-section submodule.themes/PaperMod 2>/dev/null || true
 
-          echo "==> Step 2: vendor PaperMod if missing"
+      - name: Vendor PaperMod via subtree (if missing)
+        shell: bash
+        run: |
+          set -euo pipefail
           if [ ! -d themes/PaperMod ]; then
-            # Use subtree to vendor theme at the requested prefix
             git subtree add --prefix themes/PaperMod https://github.com/adityatelange/hugo-PaperMod.git master --squash
-            changed=1
           fi
 
-          echo "==> Step 3: commit repairs if any"
-          if ! git diff --quiet || ! git diff --cached --quiet || [ "$changed" -ne 0 ]; then
+      - name: Commit repairs if any
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet || ! git diff --cached --quiet; then
             git add -A
             git commit -m "ci: repair theme vendoring & submodule config (PaperMod)"
-          else
-            echo "No repair changes to commit."
           fi
 
-      - name: Install Hugo (extended 0.147.0) for a quick build sanity check
+      - name: Install Hugo (extended 0.147.0)
         uses: peaceiris/actions-hugo@v2
         with:
           hugo-version: '0.147.0'
           extended: true
 
       - name: Build site (sanity)
+        shell: bash
         run: |
+          set -euo pipefail
           hugo --gc --minify --cleanDestinationDir
           test -f public/index.html
 
-      - name: Ensure a commit exists to trigger Pages (allow-empty if needed)
+      - name: Ensure a commit exists to trigger Pages
+        shell: bash
         run: |
-          # If previous steps didn’t commit anything, make a no-op commit
+          set -euo pipefail
           if git diff --quiet && git diff --cached --quiet; then
             git commit --allow-empty -m "chore(rebuild): force Cloudflare Pages deploy $(date -u +%FT%TZ)"
           fi
 
       - name: Push to main (triggers Cloudflare deploy)
+        shell: bash
         run: |
+          set -euo pipefail
           git push origin HEAD:main
 
