@@ -9,8 +9,8 @@ Env:
   POSTS_PER_RUN        default "2"
   MODEL_OUTLINE        default "gpt-5-mini"
   MODEL_DRAFT          default "gpt-5-mini"
-  DISABLE_HEARTBEAT    set "1"/"true" to skip heartbeat files entirely
   ALLOW_DUPLICATE_SLUG set "1"/"true" to allow timestamp-suffixed duplicates (default: skip)
+  FAIL_ON_EMPTY        set "1"/"true" to exit non-zero if no posts were generated (default: succeed)
 """
 
 import os, re, json, pathlib, time, sys, math
@@ -32,8 +32,8 @@ def _int(env_name: str, default: int) -> int:
 POSTS_PER_RUN       = _int("POSTS_PER_RUN", 2)
 MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-5-mini")
 MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-5-mini")
-DISABLE_HEARTBEAT   = os.getenv("DISABLE_HEARTBEAT", "").strip().lower() in ("1","true","yes")
 ALLOW_DUP_SLUG      = os.getenv("ALLOW_DUPLICATE_SLUG", "").strip().lower() in ("1","true","yes")
+FAIL_ON_EMPTY       = os.getenv("FAIL_ON_EMPTY", "").strip().lower() in ("1","true","yes")
 
 # --- OpenAI client ---
 try:
@@ -282,15 +282,14 @@ def main():
         outline_list = plan.get("outline") or []
         faqs = plan.get("faqs") or []
 
-        # Base slug derived from title OR keyword
         base_slug = slugify(title) or slugify(keyword)
 
-        # NEW: If a post with this base slug already exists, SKIP by default
+        # Skip if a post with this base slug already exists
         if base_slug in used and not ALLOW_DUP_SLUG:
             print(f"[skip] Duplicate slug detected, skipping topic: {keyword!r} -> slug {base_slug!r}")
             continue
 
-        # If duplicates are allowed, fall back to timestamp suffix
+        # Optional: allow duplicates with timestamp suffix
         if base_slug in used and ALLOW_DUP_SLUG:
             base_slug = f"{base_slug}-{int(datetime.now(timezone.utc).timestamp())}"
 
@@ -309,5 +308,43 @@ def main():
                         {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
                             working_title=title, summary=summary, outline_md=outline_md)}
                     ],
-                    max_tokens=2000,_
+                    max_tokens=2000,   # ~1.5–2k tokens output target
+                    timeout=90,
+                    json_mode=False,
+                    max_retries=5,
+                )
+                if body_md:
+                    break
+                backoff_sleep(attempt)
+            if body_md:
+                break
+
+        if not body_md:
+            print(f"Draft failed for: {title}", file=sys.stderr)
+            continue
+
+        if faqs and ("## FAQ" not in body_md and "### FAQ" not in body_md):
+            faq_md = ["\n\n## FAQ"]
+            for qa in faqs[:5]:
+                q = (qa.get("q") or qa.get("question") or "").strip()
+                a = (qa.get("a") or qa.get("answer") or "").strip()
+                if q and a:
+                    faq_md.append(f"\n**Q: {q}**\n\n{a}\n")
+            body_md += "\n" + "\n".join(faq_md)
+
+        write_post(slug, title, summary, body_md)
+        used.add(slug)
+        generated += 1
+
+    if generated == 0:
+        msg = "No posts generated this run (no heartbeat will be written)."
+        print(msg)
+        if FAIL_ON_EMPTY:
+            # non-zero exit so CI can alert/fail if desired
+            raise SystemExit(2)
+
+    print(f"Done. Generated {generated} post(s).")
+
+if __name__ == "__main__":
+    main()
 
