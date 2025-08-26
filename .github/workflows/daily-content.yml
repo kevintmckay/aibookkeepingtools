@@ -58,11 +58,12 @@ jobs:
         id: commit
         run: |
           set -euo pipefail
+
           git config user.name  "Content Bot"
           git config user.email "bot@users.noreply.github.com"
 
-          # Stage only posts (avoid committing incidental files)
-          git add content/posts/*.md || true
+          # Stage ALL changes the generator may produce (posts + topics files, etc.)
+          git add -A
 
           # If nothing staged, exit early
           if git diff --cached --quiet; then
@@ -73,11 +74,20 @@ jobs:
 
           git commit -m "chore: daily AI posts"
 
-          # Rebase on latest main to avoid non-fast-forward push errors
+          # Fold in any new changes that appeared between add & commit
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit --amend --no-edit
+          fi
+
+          # Ensure a clean tree before rebase (remove untracked leftovers)
+          git clean -fd
+
+          # Rebase on latest main to avoid non-fast-forward errors
           git fetch origin main
           if ! git rebase origin/main; then
             echo "Rebase conflict. Aborting rebase."
-            git rebase --abort
+            git rebase --abort || true
             exit 1
           fi
 
@@ -91,7 +101,7 @@ jobs:
             fi
             echo "Push race detected, refetching and rebasing then retrying..."
             git fetch origin main
-            git rebase origin/main || { git rebase --abort; exit 1; }
+            git rebase origin/main || { git rebase --abort || true; exit 1; }
             sleep 3
           done
 
