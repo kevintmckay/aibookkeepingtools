@@ -32,6 +32,7 @@ enableRobotsTXT = true
   description      = "Guides, reviews, and tutorials on AI bookkeeping tools, QuickBooks automations, and receipt OCR."
   author           = "AI Bookkeeping Tools"
   defaultTheme     = "auto"
+  disableThemeToggle = false
   mainSections     = ["posts"]
   summaryLength = 30   # number of words Hugo uses for .Summary
 
