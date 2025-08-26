@@ -1,0 +1,35 @@
+{{ define "main" }}
+<main class="container mx-auto px-4 my-8">
+  <header class="mb-8">
+    <h1 class="text-3xl font-semibold">
+      {{ .Title }}
+    </h1>
+    {{ with .Description }}<p class="text-neutral-500 mt-2">{{ . }}</p>{{ end }}
+  </header>
+
+  {{/* Use all pages for this term, newest first */}}
+  {{ $ordered := .Pages.ByDate.Reverse }}
+  {{ $p := .Paginate $ordered }}
+
+  {{ if not (gt (len $p.Pages) 0) }}
+    <p>No posts found for this tag.</p>
+  {{ else }}
+    <div class="grid gap-6">
+      {{ range $p.Pages }}
+        <article class="border rounded-xl p-5">
+          <h2 class="text-2xl font-medium"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <div class="text-sm text-neutral-500 mt-1">
+            {{ with .Date }}{{ .Format "Jan 2, 2006" }}{{ end }} · {{ .ReadingTime }} min read
+            {{ with .Params.tags }} · {{ delimit . ", " }}{{ end }}
+          </div>
+          {{ with .Summary }}<p class="mt-3">{{ . | plainify }}</p>{{ end }}
+          <p class="mt-3"><a href="{{ .RelPermalink }}">Read more →</a></p>
+        </article>
+      {{ end }}
+    </div>
+
+    {{ template "_internal/pagination.html" . }}
+  {{ end }}
+</main>
+{{ end }}
+

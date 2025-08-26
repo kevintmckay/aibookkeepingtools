@@ -1,0 +1,24 @@
+{{ define "main" }}
+<main class="container mx-auto px-4 my-8">
+  <header class="mb-8">
+    <h1 class="text-3xl font-semibold">{{ .Title }}</h1>
+    {{ with .Description }}<p class="text-neutral-500 mt-2">{{ . }}</p>{{ end }}
+  </header>
+
+  {{/* List all terms with counts */}}
+  {{ $terms := .Data.Terms.Alphabetical }}
+  {{ if not (gt (len $terms) 0) }}
+    <p>No terms found.</p>
+  {{ else }}
+    <ul class="grid gap-3">
+      {{ range $terms }}
+        <li class="border rounded-xl p-4">
+          <a class="text-lg font-medium" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>
+          <span class="text-sm text-neutral-500"> · {{ .Count }} posts</span>
+        </li>
+      {{ end }}
+    </ul>
+  {{ end }}
+</main>
+{{ end }}
+
