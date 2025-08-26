@@ -1,55 +1,30 @@
-{{- /* layouts/section/posts.html
-     * Section list for /posts/ — works with any theme.
-     * Uses paginator if available; falls back to all pages.
-     */ -}}
 {{ define "main" }}
 <main class="container mx-auto px-4 my-8">
   <header class="mb-8">
-    <h1 class="text-3xl font-semibold">{{ .Title | default "Posts" }}</h1>
+    <h1 class="text-3xl font-semibold">{{ .Title }}</h1>
     {{ with .Description }}<p class="text-neutral-500 mt-2">{{ . }}</p>{{ end }}
   </header>
 
-  {{ $p := .Paginate (where .RegularPages "Type" "in" (slice "posts" "post")) }}
-  {{ $pages := cond (gt $p.TotalPages 0) $p.Pages .Pages }}
-
-  {{ if not (gt (len $pages) 0) }}
+  {{ $p := .Paginate (where .RegularPages "Type" "posts") }}
+  {{ if not (gt (len $p.Pages) 0) }}
     <p>No posts found.</p>
   {{ else }}
     <div class="grid gap-6">
-      {{ range $pages }}
+      {{ range $p.Pages }}
         <article class="border rounded-xl p-5">
           <h2 class="text-2xl font-medium">
             <a href="{{ .RelPermalink }}">{{ .Title }}</a>
           </h2>
           <div class="text-sm text-neutral-500 mt-1">
-            {{ with .Date }}{{ .Format "Jan 2, 2006" }}{{ end }}
-            {{ if site.Params.showReadingTime }} · {{ .ReadingTime }} min read{{ end }}
+            {{ .Date.Format "Jan 2, 2006" }} · {{ .ReadingTime }} min read
           </div>
-
-          {{ with .Summary }}
-            <p class="mt-3">{{ . | plainify }}</p>
-          {{ else }}
-            {{ with .Params.description }}
-              <p class="mt-3">{{ . }}</p>
-            {{ end }}
-          {{ end }}
-
-          <p class="mt-3">
-            <a href="{{ .RelPermalink }}">Read more →</a>
-          </p>
+          <p class="mt-3">{{ .Summary | plainify }}</p>
+          <p class="mt-3"><a href="{{ .RelPermalink }}">Read more →</a></p>
         </article>
       {{ end }}
     </div>
 
-    {{ if $p }}
-      <nav class="mt-8 flex items-center gap-2">
-        {{ if $p.HasPrev }}<a href="{{ $p.Prev.URL }}">← Newer</a>{{ end }}
-        <span class="mx-2">Page {{ $p.PageNumber }} / {{ $p.TotalPages }}</span>
-        {{ if $p.HasNext }}<a href="{{ $p.Next.URL }}">Older →</a>{{ end }}
-      </nav>
-    {{ end }}
+    {{ template "_internal/pagination.html" . }}
   {{ end }}
 </main>
 {{ end }}
-
-
