@@ -3,6 +3,8 @@ languageCode = "en-us"
 title = "AI Bookkeeping Tools"
 theme = "PaperMod"
 enableRobotsTXT = true
+buildFuture = true
+buildDrafts = false
 
 [pagination]
   pagerSize = 12
