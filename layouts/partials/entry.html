@@ -1,0 +1,8 @@
+{{/* PaperMod summary override: use Hugo’s .Summary or .Params.summary as-is (no truncate) */}}
+{{- $summary := cond (isset .Params "summary") .Params.summary .Summary -}}
+{{- if $summary }}
+  <div class="entry-content">
+    {{ $summary | plainify | htmlUnescape }}
+  </div>
+{{- end }}
+
