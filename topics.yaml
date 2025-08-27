@@ -1,1 +1,113 @@
-topics: []
+topics:
+  # High-volume comparison keywords (build on your strength)
+  - keyword: "AI bookkeeping software vs traditional accounting software 2025"
+    audience: "Small business owners considering switching to AI"
+    intent: "Comparison review"
+
+  - keyword: "QuickBooks AI vs Xero AI features comparison"
+    audience: "Small business owners choosing accounting software"
+    intent: "Commercial investigation"
+
+  - keyword: "Best receipt OCR apps for small business 2025"
+    audience: "Small business owners and freelancers"
+    intent: "Commercial investigation"
+
+  # Cost-focused keywords (high commercial intent)
+  - keyword: "How much does AI bookkeeping software cost in 2025"
+    audience: "Budget-conscious small business owners"
+    intent: "Commercial investigation"
+
+  - keyword: "AI bookkeeping ROI calculator and cost savings analysis"
+    audience: "CFOs and finance managers at SMBs"
+    intent: "B2B professional"
+
+  - keyword: "Free AI bookkeeping tools vs paid solutions comparison"
+    audience: "Startups and bootstrapped businesses"
+    intent: "Commercial investigation"
+
+  # Implementation and tutorial content
+  - keyword: "Step-by-step guide to implementing AI bookkeeping workflows"
+    audience: "Small business owners ready to automate"
+    intent: "How-to tutorial"
+
+  - keyword: "AI bookkeeping integration with existing accounting systems"
+    audience: "Business owners with established processes"
+    intent: "How-to tutorial"
+
+  - keyword: "Common AI bookkeeping mistakes and how to avoid them"
+    audience: "New AI bookkeeping users"
+    intent: "How-to tutorial"
+
+  # Industry-specific content
+  - keyword: "AI bookkeeping for e-commerce businesses and online stores"
+    audience: "E-commerce business owners and Shopify users"
+    intent: "How-to tutorial"
+
+  - keyword: "AI bookkeeping solutions for construction and trades businesses"
+    audience: "Contractors and construction business owners"
+    intent: "Commercial investigation"
+
+  - keyword: "AI bookkeeping for restaurants and food service businesses"
+    audience: "Restaurant owners and food service managers"
+    intent: "Commercial investigation"
+
+  # Advanced features and use cases
+  - keyword: "AI-powered financial forecasting and cash flow prediction tools"
+    audience: "Growing small businesses and startups"
+    intent: "B2B professional"
+
+  - keyword: "AI bookkeeping automation for multi-location businesses"
+    audience: "Multi-location business owners and franchisees"
+    intent: "B2B professional"
+
+  - keyword: "AI audit trail and compliance features for small businesses"
+    audience: "Compliance-focused small business owners"
+    intent: "How-to tutorial"
+
+  # Problem-solving content (high search volume)
+  - keyword: "How to fix common AI bookkeeping categorization errors"
+    audience: "Current AI bookkeeping software users"
+    intent: "How-to tutorial"
+
+  - keyword: "AI bookkeeping data security and privacy best practices"
+    audience: "Security-conscious business owners"
+    intent: "How-to tutorial"
+
+  - keyword: "Migrating from manual bookkeeping to AI automation"
+    audience: "Business owners still doing manual books"
+    intent: "How-to tutorial"
+
+  # Trend and future-focused content
+  - keyword: "Future of AI in bookkeeping and accounting 2025-2026"
+    audience: "Forward-thinking business owners and accountants"
+    intent: "Informational research"
+
+  - keyword: "AI bookkeeping trends that will impact small businesses"
+    audience: "Business owners planning for growth"
+    intent: "Informational research"
+
+  # Tool-specific deep dives
+  - keyword: "Complete guide to QuickBooks Advanced AI features in 2025"
+    audience: "QuickBooks users wanting to maximize AI features"
+    intent: "How-to tutorial"
+
+  - keyword: "Sage AI vs QuickBooks AI detailed feature comparison"
+    audience: "Mid-size businesses choosing enterprise tools"
+    intent: "Commercial investigation"
+
+  - keyword: "AI bookkeeping mobile apps for business owners on the go"
+    audience: "Mobile-first business owners and field workers"
+    intent: "Commercial investigation"
+
+  # Integration and workflow content
+  - keyword: "Connecting AI bookkeeping with CRM and business management tools"
+    audience: "Tech-savvy small business owners"
+    intent: "How-to tutorial"
+
+  - keyword: "AI bookkeeping for seasonal and cyclical businesses"
+    audience: "Seasonal business owners"
+    intent: "How-to tutorial"
+
+  - keyword: "Setting up AI bookkeeping for partnership and LLC structures"
+    audience: "Partnership and LLC owners"
+    intent: "How-to tutorial"
