@@ -21,12 +21,6 @@ enableRobotsTXT = true
   taxonomy = ["HTML", "RSS"]
   term     = ["HTML", "RSS"]
 
-# Sitemap
-[sitemap]
-  changefreq = "weekly"
-  priority   = 0.5
-  filename   = "sitemap.xml"
-
 [params]
   env              = "production"
   description      = "Guides, reviews, and tutorials on AI bookkeeping tools, QuickBooks automations, and receipt OCR."
@@ -97,3 +91,7 @@ enableRobotsTXT = true
     startLevel = 2
     endLevel   = 4
 
+
+sitemap:
+  changefreq: weekly
+  priority: 0.5
