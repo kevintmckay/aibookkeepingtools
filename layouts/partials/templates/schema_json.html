@@ -1,0 +1,23 @@
+{{ if .IsHome }}
+<script type="application/ld+json" nonce="{{ site.Params.cspNonce }}">
+{
+  "@context": "https://schema.org",
+  "@type": "{{- ( site.Params.schema.publisherType | default "Organization") | title -}}",
+  "name": {{ site.Title }},
+  "url": {{ site.Home.Permalink }},
+  "description": {{ site.Params.description | plainify | truncate 180 | safeHTML }},
+  {{- if (eq site.Params.schema.publisherType "Person") }}
+  "image": {{ site.Params.assets.apple_touch_icon | default "/apple-touch-icon.png" | absURL }},
+  {{- else }}
+  "logo": {{ site.Params.assets.apple_touch_icon | default "/apple-touch-icon.png" | absURL }},
+  {{- end }}
+  "sameAs": [
+    {{- range $i, $e := site.Params.socialIcons }}{{ if $i }}, {{ end }}"{{ $e.url }}"{{- end }}
+  ]
+}
+</script>
+{{ end }}
+{{ if .IsPage }}
+<!-- (copy your existing per-post JSON-LD here and add nonce="{{ site.Params.cspNonce }}" ) -->
+{{ end }}
+

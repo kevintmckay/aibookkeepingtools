@@ -35,6 +35,7 @@ enableRobotsTXT = true
   disableThemeToggle = false
   mainSections     = ["posts"]
   summaryLength = 30   # number of words Hugo uses for .Summary
+  cspNonce = "abc123xyz"
 
   # UI features
   ShowPostNavLinks = true
