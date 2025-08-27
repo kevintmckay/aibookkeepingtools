@@ -1,11 +1,20 @@
 (function () {
-  function onReady(fn){ if(document.readyState!=='loading'){fn()} else {document.addEventListener('DOMContentLoaded',fn)} }
+  function onReady(fn) {
+    if (document.readyState !== 'loading') {
+      fn();
+    } else {
+      document.addEventListener('DOMContentLoaded', fn);
+    }
+  }
+
   onReady(function () {
     var btn = document.getElementById('theme-toggle');
     if (!btn) return;
+
     btn.addEventListener('click', function () {
       var root = document.documentElement;
       var isDark = root.classList.contains('dark');
+
       if (isDark) {
         root.classList.remove('dark');
         try { localStorage.setItem('pref-theme', 'light'); } catch (e) {}
@@ -14,6 +23,8 @@
         try { localStorage.setItem('pref-theme', 'dark'); } catch (e) {}
       }
     });
+
+    // Optional: if no preference is stored, follow OS dark mode changes
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
     mq.addEventListener('change', function (e) {
       try {
