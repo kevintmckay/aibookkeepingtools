@@ -7,8 +7,7 @@
 
 /sitemap.xml
   Content-Type: application/xml; charset=utf-8
-  # Remove CSP for sitemap as it's just XML data
-  Content-Security-Policy: 
+  Cache-Control: public, max-age=3600
 
 /robots.txt
   Content-Type: text/plain; charset=utf-8
