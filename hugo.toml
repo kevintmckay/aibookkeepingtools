@@ -1,13 +1,14 @@
 baseURL = "https://aibookkeepingtools.com/"
 title   = "AI Bookkeeping Tools"
 theme   = "PaperMod"
+googleAnalytics = "G-6TESE2Z3E2"
 languageCode = "en-us"
 # Build settings
 buildDrafts  = false
 buildFuture  = true
 buildExpired = false
 enableRobotsTXT = true
-# Pagination (Hugo 0.128+)
+
 [pagination]
   pagerSize = 10
 # Outputs (add JSON so PaperMod search works)
