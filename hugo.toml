@@ -2,17 +2,14 @@ baseURL = "https://aibookkeepingtools.com/"
 title   = "AI Bookkeeping Tools"
 theme   = "PaperMod"
 languageCode = "en-us"
-
 # Build settings
 buildDrafts  = false
 buildFuture  = true
 buildExpired = false
 enableRobotsTXT = true
-
 # Pagination (Hugo 0.128+)
 [pagination]
   pagerSize = 10
-
 # Outputs (add JSON so PaperMod search works)
 [outputs]
   home     = ["HTML", "RSS", "Sitemap", "JSON"]
@@ -20,7 +17,6 @@ enableRobotsTXT = true
   page     = ["HTML"]
   taxonomy = ["HTML", "RSS"]
   term     = ["HTML", "RSS"]
-
 [params]
   env              = "production"
   description      = "Guides, reviews, and tutorials on AI bookkeeping tools, QuickBooks automations, and receipt OCR."
@@ -30,7 +26,6 @@ enableRobotsTXT = true
   mainSections     = ["posts"]
   summaryLength = 25   # number of words Hugo uses for .Summary
   cspNonce = "abc123xyz"
-
   # UI features
   ShowPostNavLinks = true
   ShowShareButtons = true
@@ -38,51 +33,42 @@ enableRobotsTXT = true
   ShowToc          = true
   ShowBreadCrumbs  = true
   comments         = false
-
   # SEO / meta
   disableSpecial1stPost = false
   hideMeta              = false
   showMeta              = true
-
   # Assets
   [params.assets]
     favicon = "/favicon.ico"
     apple_touch_icon = "/apple-touch-icon.png"
-
 # Menus (match SecureStackOps style)
 [menu]
   [[menu.main]]
     name   = "Home"
     url    = "/"
     weight = 1
-
   [[menu.main]]
     name   = "Posts"
     url    = "/posts/"
     weight = 2
-
   [[menu.main]]
     name   = "Tags"
     url    = "/tags/"
     weight = 3
-
   [[menu.main]]
     name   = "Search"
     url    = "/search/"
     weight = 4
-
 # Taxonomies
 [taxonomies]
   tag      = "tags"
   category = "categories"
-
 # Privacy
 [privacy]
   [privacy.googleAnalytics]
     anonymizeIP = true
   [privacy.youtube]
     privacyEnhanced = true
-
 # Markup
 [markup]
   [markup.goldmark.renderer]
@@ -90,12 +76,8 @@ enableRobotsTXT = true
   [markup.tableOfContents]
     startLevel = 2
     endLevel   = 4
-
+# Sitemap configuration
 [sitemap]
   changefreq = "weekly"
   priority = 0.5
-
-mediaTypes:
-  application/xml:
-    suffixes: ["xml"]
 
