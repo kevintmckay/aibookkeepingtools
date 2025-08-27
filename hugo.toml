@@ -91,7 +91,7 @@ enableRobotsTXT = true
     startLevel = 2
     endLevel   = 4
 
-
 sitemap:
   changefreq: weekly
   priority: 0.5
+  filename: sitemap.xml
