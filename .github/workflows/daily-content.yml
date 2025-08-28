@@ -16,7 +16,7 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45  # Increased from 30 to account for longer wait times
 
     steps:
       - name: Checkout
@@ -137,7 +137,7 @@ jobs:
             echo "have_urls=0" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Wait for deploy & verify sitemap
+      - name: Wait for Cloudflare Pages deployment and verify sitemap
         if: steps.urls.outputs.have_urls == '1'
         run: |
           set -euo pipefail
@@ -146,11 +146,20 @@ jobs:
 
           urls_file="${{ steps.urls.outputs.urls_file }}"
 
+          echo "Waiting for Cloudflare Pages to build and deploy..."
+          echo "This typically takes 3-5 minutes for Hugo sites on Cloudflare Pages"
+          
+          # Initial wait to let Cloudflare Pages start building
+          sleep 120  # 2 minutes initial wait
+          
           tries=0
-          max=20
+          max=12     # Reduced attempts but longer intervals
           ok=0
+          
           while [ $tries -lt $max ]; do
-            echo "Fetching sitemap (attempt $((tries+1))/$max): $SITEMAP"
+            tries=$((tries+1))
+            echo "Fetching sitemap (attempt $tries/$max): $SITEMAP"
+            
             map="$(curl -fsSL -A 'CI-Sitemap-Check' "$SITEMAP" || true)"
             if [ -z "$map" ]; then
               echo "Sitemap not reachable yet."
@@ -170,12 +179,28 @@ jobs:
                 echo "$missing URL(s) not yet in sitemap."
               fi
             fi
-            tries=$((tries+1))
-            sleep 30
+            
+            # Progressive backoff: longer waits as attempts increase
+            if [ $tries -le 4 ]; then
+              echo "Waiting 60 seconds before next attempt..."
+              sleep 60
+            elif [ $tries -le 8 ]; then
+              echo "Waiting 90 seconds before next attempt..."
+              sleep 90
+            else
+              echo "Waiting 120 seconds before next attempt..."
+              sleep 120
+            fi
           done
 
           if [ $ok -ne 1 ]; then
             echo "Sitemap did not include all new URLs within the wait window."
+            echo "This might be a Cloudflare Pages caching issue or build delay."
+            echo "The posts were committed successfully - they should appear shortly."
+            
+            # Optional: Make this a warning instead of failure
+            # Uncomment the next line to make deployment succeed even if sitemap check fails
+            # echo "⚠️  Continuing despite sitemap check failure"
+            
             exit 1
           fi
-
