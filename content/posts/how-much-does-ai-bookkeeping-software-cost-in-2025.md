@@ -1,6 +1,6 @@
 ---
 title: "How Much Does AI Bookkeeping Software Cost in 2025?"
-date: "2025-08-28T00:08:53Z"
+date: "2025-08-27T00:08:53Z"
 slug: "how-much-does-ai-bookkeeping-software-cost-in-2025"
 description: "Discover the costs of AI bookkeeping software in 2025, helping small business owners budget effectively for essential financial tools."
 tags: ["AI", "Bookkeeping", "Accounting", "Tools"]

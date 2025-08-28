@@ -1,6 +1,6 @@
 ---
 title: "Best Receipt OCR Apps for Small Business in 2025"
-date: "2025-08-28T00:02:44Z"
+date: "2025-08-27T00:02:44Z"
 slug: "best-receipt-ocr-apps-for-small-business-in-2025"
 description: "Discover the best receipt OCR apps for small businesses in 2025. Streamline expense tracking and improve your accounting efficiency."
 tags: ["AI", "Bookkeeping", "Accounting", "Tools"]
