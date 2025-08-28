@@ -7,6 +7,7 @@ googleAnalytics = "G-6TESE2Z3E2"
 # Build settings
 buildDrafts  = false
 buildFuture  = true
+publishDir = "public"
 buildExpired = false
 enableRobotsTXT = true
 
