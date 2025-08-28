@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Robust generator: writes 1–2 posts/day from topics.yaml
+Enhanced robust generator: writes 1–2 posts/day from topics.yaml with SEO optimization and internal linking
 
 Env:
   OPENAI_API_KEY       (required)
@@ -59,28 +59,41 @@ def slugify(s: str) -> str:
     s = re.sub(r"-{2,}", "-", s)
     return s.strip("-")[:80] or "post"
 
+# Enhanced system prompt with internal linking
 SYSTEM_EDITOR = (
     "You are a senior technical editor specializing in AI + bookkeeping/accounting. "
     "Write with precision and practical steps. Use Markdown with H2/H3, bullets, short paragraphs. "
+    "Include 2-3 internal links to related content where natural and helpful. "
     "Cite 3–5 reputable sources inline (official docs, vendor docs, gov, recognized publishers). "
-    "Avoid fluff and clickbait. Ensure accuracy."
+    "Avoid fluff and clickbait. Ensure accuracy. Focus on SEO best practices."
 )
 
+# Enhanced outline prompt with existing content context
 OUTLINE_PROMPT_TMPL = """Create a concise brief and outline for a post.
 
 Topic/Keyword: {keyword}
 Audience: {audience}
 Search intent: {intent}
 
+Existing content to reference (add internal links where relevant):
+- "Best AI Bookkeeping Tools for Small Businesses 2025" (/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/)
+- "How to Automate Bookkeeping with AI: QuickBooks & Receipt OCR" (/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/)
+- "AI Expense Tracking Apps Compared: Expensify vs Zoho vs Divvy" (/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/)
+- "AI for Accountants: Optimize Workflows to Serve More Clients" (/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/)
+- "AI Tax Prep Tools for Self-Employed in 2025" (/posts/ai-tax-prep-tools-for-self-employed-in-2025/)
+
 Return JSON with keys:
-- working_title (<=70 chars, include the main keyword)
+- working_title (<=70 chars, include the main keyword, add year if relevant)
+- meta_description (150-155 chars, compelling with benefits)
 - summary (2–3 sentences)
-- outline (array of 8–12 section headings)
+- outline (array of 8–12 section headings including "Quick Start" section)
 - entities (10–20 important terms)
 - faqs (5 short Q/A pairs)
+- internal_link_opportunities (2-3 places where linking to existing content makes sense)
 """
 
-DRAFT_PROMPT_TMPL = """Write a 1,600–2,100 word article in Markdown.
+# Enhanced draft prompt with SEO optimization
+DRAFT_PROMPT_TMPL = """Write a 1,600–2,100 word article in Markdown optimized for SEO and user experience.
 
 Working title: {working_title}
 
@@ -91,12 +104,23 @@ Outline:
 {outline_md}
 
 Guidelines:
-- Technical depth; step-by-step where applicable.
-- Include a short "Quick Start" section.
-- Add a "Pitfalls & Gotchas" section.
-- Include 3–5 authoritative citations inline as Markdown links.
-- Add a 5-item FAQ at the end (use/refine provided Q/A).
-- Use H2/H3 headings. Keep paragraphs short. Avoid fluff.
+- Include the target keyword naturally in the first 100 words and in H2 headings where appropriate
+- Add 2-3 internal links to existing content where they provide genuine value:
+  * /posts/best-ai-bookkeeping-tools-for-small-businesses-2025/
+  * /posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/
+  * /posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/
+  * /posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/
+  * /posts/ai-tax-prep-tools-for-self-employed-in-2025/
+- Technical depth; step-by-step where applicable
+- Include a short "Quick Start" section early in the post
+- Add a "Common Mistakes to Avoid" or "Pitfalls & Gotchas" section
+- Include 3–5 authoritative citations inline as Markdown links
+- Add a 5-item FAQ at the end (use/refine provided Q/A)
+- Use H2/H3 headings. Keep paragraphs short (2-3 sentences max)
+- Include at least one comparison table or bulleted pros/cons list
+- End with clear next steps or call-to-action
+
+Internal link format: [descriptive anchor text](/posts/slug-here/)
 
 Return ONLY the Markdown body (no front matter, no backticks).
 """
@@ -323,6 +347,7 @@ def main():
 
         title   = (plan.get("working_title") or keyword.title()).strip()
         summary = (plan.get("summary") or "").strip()
+        meta_description = (plan.get("meta_description") or summary).strip()
         outline_list = plan.get("outline") or []
         faqs = plan.get("faqs") or []
 
@@ -338,7 +363,7 @@ def main():
             base_slug = f"{base_slug}-{int(datetime.now(timezone.utc).timestamp())}"
 
         slug = base_slug
-        outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Steps\n- Conclusion"
+        outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Quick Start\n- Steps\n- Common Mistakes\n- Conclusion"
 
         # --- Draft ---
         draft_models = [MODEL_DRAFT_ENV, "gpt-5-mini", "gpt-4o-mini"]
@@ -373,10 +398,12 @@ def main():
                 q = (qa.get("q") or qa.get("question") or "").strip()
                 a = (qa.get("a") or qa.get("answer") or "").strip()
                 if q and a:
-                    faq_md.append(f"\n**Q: {q}**\n\n{a}\n")
+                    faq_md.append(f"\n### {q}\n\n{a}\n")
             body_md += "\n" + "\n".join(faq_md)
 
-        write_post(slug, title, summary, body_md)
+        # Use meta_description if available, otherwise use summary
+        description = meta_description or summary
+        write_post(slug, title, description, body_md)
         used.add(slug)
         generated += 1
 
@@ -397,4 +424,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
