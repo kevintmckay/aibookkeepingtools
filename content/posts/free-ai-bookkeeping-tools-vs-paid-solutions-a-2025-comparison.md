@@ -25,7 +25,7 @@ Utilizing AI in bookkeeping offers several benefits:
 - **Cost-Effective Solutions**: Many AI tools are scalable, meaning they can grow with your business while keeping costs manageable.
 - **Enhanced Insights**: Provides real-time analytics to facilitate informed decision-making.
 
-For more insights into specific tools, check out our article on [best AI bookkeeping tools for small businesses in 2025](https://yourwebsite.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
+For more insights into specific tools, check out our article on [best AI bookkeeping tools for small businesses in 2025](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
 
 ## Overview of Free AI Bookkeeping Tools
 
@@ -46,7 +46,7 @@ Despite their benefits, free AI bookkeeping tools have several drawbacks:
 - **Customer Support**: Support is typically more limited, making it harder to resolve issues quickly.
 - **Lack of Integrations**: May not integrate well with other business software, complicating the workflow.
 
-For those looking to automate further, learning about [how to automate bookkeeping with AI using QuickBooks Receipt OCR](https://yourwebsite.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) may provide some valuable insights.
+For those looking to automate further, learning about [how to automate bookkeeping with AI using QuickBooks Receipt OCR](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) may provide some valuable insights.
 
 ## Overview of Paid AI Bookkeeping Solutions
 
@@ -113,9 +113,9 @@ Choosing between free and paid AI bookkeeping tools is pivotal for startups and 
 
 For a deeper dive into AI tools for bookkeeping, consider exploring:
 
-- [AI for accountants: Optimize workflows to serve more clients](https://yourwebsite.com/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/)
-- [Case Comparison: AI expense tracking apps Expensify vs. Zoho vs. Divvy](https://yourwebsite.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/)
-- [AI tax prep tools for self-employed in 2025](https://yourwebsite.com/posts/ai-tax-prep-tools-for-self-employed-in-2025/)
+- [AI for accountants: Optimize workflows to serve more clients](/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/)
+- [Case Comparison: AI expense tracking apps Expensify vs. Zoho vs. Divvy](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/)
+- [AI tax prep tools for self-employed in 2025](/posts/ai-tax-prep-tools-for-self-employed-in-2025/)
 
 ## FAQ
 
