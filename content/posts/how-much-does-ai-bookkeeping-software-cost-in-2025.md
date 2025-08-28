@@ -115,14 +115,14 @@ As we approach 2025, understanding **how much AI bookkeeping software costs** wi
 ### Next Steps
 
 - Review your current bookkeeping processes.
-- Explore leading [AI bookkeeping tools](https://yourdomain.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
-- Consider automation options, such as [automating with AI and QuickBooks](https://yourdomain.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
+- Explore leading [AI bookkeeping tools](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
+- Consider automation options, such as [automating with AI and QuickBooks](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
 
 ## Resources for Further Reading
 
-- For insights on expense tracking, read [AI Expense Tracking Apps Compared](https://yourdomain.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
-- Learn how [AI can optimize accountants' workflows](https://yourdomain.com/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/).
-- For self-employed individuals, explore the best [AI Tax Prep Tools](https://yourdomain.com/posts/ai-tax-prep-tools-for-self-employed-in-2025/).
+- For insights on expense tracking, read [AI Expense Tracking Apps Compared](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
+- Learn how [AI can optimize accountants' workflows](/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/).
+- For self-employed individuals, explore the best [AI Tax Prep Tools](/posts/ai-tax-prep-tools-for-self-employed-in-2025/).
 
 ## Frequently Asked Questions
 

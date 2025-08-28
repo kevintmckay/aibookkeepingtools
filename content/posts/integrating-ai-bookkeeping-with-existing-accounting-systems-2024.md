@@ -24,7 +24,7 @@ AI bookkeeping refers to the use of artificial intelligence technologies to auto
 - **Accuracy**: Minimizes human errors through machine learning algorithms.
 - **Insights**: Provides actionable data analytics for informed decision-making.
 
-For a deeper dive, explore our [best AI bookkeeping tools for small businesses](https://www.example.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
+For a deeper dive, explore our [best AI bookkeeping tools for small businesses](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
 
 ### Benefits of AI Integration in Bookkeeping
 
@@ -61,7 +61,7 @@ Selecting the right tool is critical. Consider these factors during your selecti
 | Xero          | Collaboration, customizable reports  | $12-$65/month     |
 | Zoho Books    | AI-driven insights, automated tasks  | $15-$50/month     |
 
-For more options, check out our comparison of [AI expense tracking apps](https://www.example.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
+For more options, check out our comparison of [AI expense tracking apps](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
 
 ### Quick Start: Setting Up Your AI Bookkeeping Tool
 
@@ -139,4 +139,4 @@ Basic training on the tool’s features and data management best practices is es
 **5. How long does it take to see results after integration?**  
 Most businesses report noticeable improvements within the first three months of using AI bookkeeping tools. 
 
-For further insights on automation and AI bookkeeping, read our article on how to [automate bookkeeping with AI](https://www.example.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) and learn more about [AI for accountants](https://www.example.com/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/).
+For further insights on automation and AI bookkeeping, read our article on how to [automate bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) and learn more about [AI for accountants](/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/).

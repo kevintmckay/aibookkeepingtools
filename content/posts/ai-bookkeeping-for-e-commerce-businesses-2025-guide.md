@@ -142,4 +142,4 @@ The journey toward seamless financial management with AI begins with understandi
 - Explore various AI tools and their features.
 - Start a free trial to see how an AI bookkeeping solution fits into your workflow.
 
-For a deeper dive, check out our posts on [automating bookkeeping with AI](https://www.example.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) and [AI expense tracking tools](https://www.example.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/) for more insights on integrating AI into your financial management.
+For a deeper dive, check out our posts on [automating bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) and [AI expense tracking tools](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/) for more insights on integrating AI into your financial management.
