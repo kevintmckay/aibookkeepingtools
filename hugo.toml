@@ -95,16 +95,15 @@ Discover comprehensive guides, reviews, and tutorials on the latest AI bookkeepi
     startLevel = 2
     endLevel   = 4
 
-
 [sitemap]
   changefreq = "weekly"
   priority = 0.5
   filename = "sitemap.xml"
 
-# Outputs 
+# Outputs - corrected format
 [outputs]
-  home     = ["HTML", "RSS", "Sitemap", "JSON"]
-  section  = ["HTML", "RSS", "Sitemap"]        # Added Sitemap here
-  page     = ["HTML", "Sitemap"]           
+  home = ["HTML", "RSS", "JSON", "sitemap"]      # lowercase sitemap
+  section = ["HTML", "RSS", "sitemap"]           # lowercase sitemap  
+  page = ["HTML"]                                # remove sitemap from individual pages
   taxonomy = ["HTML", "RSS"]
-  term     = ["HTML", "RSS"]
+  term = ["HTML", "RSS"]
