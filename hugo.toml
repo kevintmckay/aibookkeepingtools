@@ -15,13 +15,6 @@ enableRobotsTXT = true
 [pagination]
   pagerSize = 10
 
-# Outputs (add JSON so PaperMod search works)
-[outputs]
-  home     = ["HTML", "RSS", "Sitemap", "JSON"]
-  section  = ["HTML", "RSS"]
-  page     = ["HTML"]
-  taxonomy = ["HTML", "RSS"]
-  term     = ["HTML", "RSS"]
 
 [params]
   env              = "production"
@@ -102,7 +95,16 @@ Discover comprehensive guides, reviews, and tutorials on the latest AI bookkeepi
     startLevel = 2
     endLevel   = 4
 
-# Sitemap configuration
+
 [sitemap]
   changefreq = "weekly"
   priority = 0.5
+  filename = "sitemap.xml"
+
+# Outputs 
+[outputs]
+  home     = ["HTML", "RSS", "Sitemap", "JSON"]
+  section  = ["HTML", "RSS", "Sitemap"]        # Added Sitemap here
+  page     = ["HTML", "Sitemap"]           
+  taxonomy = ["HTML", "RSS"]
+  term     = ["HTML", "RSS"]
