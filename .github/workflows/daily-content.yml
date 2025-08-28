@@ -137,12 +137,10 @@ jobs:
             echo "have_urls=0" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Wait for Cloudflare Pages deployment and verify sitemap
+      - name: Wait for deployment and verify posts are live
         if: steps.urls.outputs.have_urls == '1'
         run: |
           set -euo pipefail
-          BASE_URL="https://aibookkeepingtools.com"
-          SITEMAP="${BASE_URL}/sitemap.xml"
 
           urls_file="${{ steps.urls.outputs.urls_file }}"
 
@@ -153,38 +151,40 @@ jobs:
           sleep 120  # 2 minutes initial wait
           
           tries=0
-          max=12     # Reduced attempts but longer intervals
-          ok=0
+          max=10
+          all_live=0
           
           while [ $tries -lt $max ]; do
             tries=$((tries+1))
-            echo "Fetching sitemap (attempt $tries/$max): $SITEMAP"
+            echo "Verifying posts are live (attempt $tries/$max)..."
             
-            map="$(curl -fsSL -A 'CI-Sitemap-Check' "$SITEMAP" || true)"
-            if [ -z "$map" ]; then
-              echo "Sitemap not reachable yet."
-            else
-              missing=0
-              while read -r url; do
-                [ -z "${url:-}" ] && continue
-                echo "  Checking: $url"
-                echo "$map" | grep -F "$url" >/dev/null || missing=$((missing+1))
-              done < "$urls_file"
-
-              if [ $missing -eq 0 ]; then
-                echo "All new URLs found in sitemap ✅"
-                ok=1
-                break
+            missing=0
+            while read -r url; do
+              [ -z "${url:-}" ] && continue
+              echo "  Checking: $url"
+              
+              # Check if URL returns 200 OK (post is live)
+              if curl -fsSL -A 'CI-Deploy-Check' --max-time 10 "$url" > /dev/null 2>&1; then
+                echo "    ✅ Live"
               else
-                echo "$missing URL(s) not yet in sitemap."
+                echo "    ❌ Not yet accessible"
+                missing=$((missing+1))
               fi
+            done < "$urls_file"
+
+            if [ $missing -eq 0 ]; then
+              echo "All new posts are live and accessible! ✅"
+              all_live=1
+              break
+            else
+              echo "$missing post(s) not yet accessible."
             fi
             
-            # Progressive backoff: longer waits as attempts increase
-            if [ $tries -le 4 ]; then
+            # Progressive backoff
+            if [ $tries -le 3 ]; then
               echo "Waiting 60 seconds before next attempt..."
               sleep 60
-            elif [ $tries -le 8 ]; then
+            elif [ $tries -le 7 ]; then
               echo "Waiting 90 seconds before next attempt..."
               sleep 90
             else
@@ -193,14 +193,11 @@ jobs:
             fi
           done
 
-          if [ $ok -ne 1 ]; then
-            echo "Sitemap did not include all new URLs within the wait window."
-            echo "This might be a Cloudflare Pages caching issue or build delay."
-            echo "The posts were committed successfully - they should appear shortly."
-            
-            # Optional: Make this a warning instead of failure
-            # Uncomment the next line to make deployment succeed even if sitemap check fails
-            # echo "⚠️  Continuing despite sitemap check failure"
-            
+          if [ $all_live -ne 1 ]; then
+            echo "Some posts are still not accessible after waiting."
+            echo "This could indicate a Cloudflare Pages build failure or deployment issue."
+            echo "Check the Cloudflare Pages dashboard for build errors."
             exit 1
           fi
+          
+          echo "Deployment verification complete! All posts are live."
