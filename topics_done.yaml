@@ -125,3 +125,15 @@ topics_done:
   date: '2025-08-30T21:19:14Z'
   audience: Current AI bookkeeping software users
   intent: How-to tutorial
+- keyword: AI bookkeeping data security and privacy best practices
+  slug: ai-bookkeeping-data-security-and-privacy-best-practices-in-2023
+  title: AI Bookkeeping Data Security and Privacy Best Practices in 2023
+  date: '2025-08-31T21:15:22Z'
+  audience: Security-conscious business owners
+  intent: How-to tutorial
+- keyword: Migrating from manual bookkeeping to AI automation
+  slug: migrating-from-manual-bookkeeping-to-ai-automation-in-2025
+  title: Migrating from Manual Bookkeeping to AI Automation in 2025
+  date: '2025-08-31T21:20:31Z'
+  audience: Business owners still doing manual books
+  intent: How-to tutorial
