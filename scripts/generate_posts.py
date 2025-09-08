@@ -6,7 +6,6 @@ Enhanced robust generator: writes 1 post/day from topics.yaml with SEO optimizat
 
 Env:
   OPENAI_API_KEY       (required)
-  POSTS_PER_RUN        default "1"
   MODEL_OUTLINE        default "gpt-5-mini"
   MODEL_DRAFT          default "gpt-5-mini"
   ALLOW_DUPLICATE_SLUG set "1"/"true" to allow timestamp-suffixed duplicates (default: skip)
@@ -30,7 +29,8 @@ def _int(env_name: str, default: int) -> int:
     except Exception:
         return default
 
-POSTS_PER_RUN       = _int("POSTS_PER_RUN", 1)  # Changed from 2 to 1
+# Force single post per run - ignore environment variable
+POSTS_PER_RUN       = 1
 MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-5-mini")
 MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-5-mini")
 ALLOW_DUP_SLUG      = os.getenv("ALLOW_DUPLICATE_SLUG", "").strip().lower() in ("1","true","yes")
@@ -64,7 +64,7 @@ SYSTEM_EDITOR = (
     "You are a senior technical editor specializing in AI + bookkeeping/accounting. "
     "Write with precision and practical steps. Use Markdown with H2/H3, bullets, short paragraphs. "
     "Include 2-3 internal links to related content where natural and helpful. "
-    "Cite 3–5 reputable sources inline (official docs, vendor docs, gov, recognized publishers). "
+    "Cite 3â€"5 reputable sources inline (official docs, vendor docs, gov, recognized publishers). "
     "Avoid fluff and clickbait. Ensure accuracy. Focus on SEO best practices."
 )
 
@@ -85,15 +85,15 @@ Existing content to reference (add internal links where relevant):
 Return JSON with keys:
 - working_title (<=70 chars, include the main keyword, add year if relevant)
 - meta_description (150-155 chars, compelling with benefits)
-- summary (2–3 sentences)
-- outline (array of 8–12 section headings including "Quick Start" section)
-- entities (10–20 important terms)
+- summary (2â€"3 sentences)
+- outline (array of 8â€"12 section headings including "Quick Start" section)
+- entities (10â€"20 important terms)
 - faqs (5 short Q/A pairs)
 - internal_link_opportunities (2-3 places where linking to existing content makes sense)
 """
 
 # Enhanced draft prompt with SEO optimization
-DRAFT_PROMPT_TMPL = """Write a 1,600–2,100 word article in Markdown optimized for SEO and user experience.
+DRAFT_PROMPT_TMPL = """Write a 1,600â€"2,100 word article in Markdown optimized for SEO and user experience.
 
 Working title: {working_title}
 
@@ -114,7 +114,7 @@ Guidelines:
 - Technical depth; step-by-step where applicable
 - Include a short "Quick Start" section early in the post
 - Add a "Common Mistakes to Avoid" or "Pitfalls & Gotchas" section
-- Include 3–5 authoritative citations inline as Markdown links
+- Include 3â€"5 authoritative citations inline as Markdown links
 - Add a 5-item FAQ at the end (use/refine provided Q/A)
 - Use H2/H3 headings. Keep paragraphs short (2-3 sentences max)
 - Include at least one comparison table or bulleted pros/cons list
@@ -247,7 +247,7 @@ def existing_slugs() -> set:
     return {p.stem for p in CONTENT_DIR.glob("*.md")}
 
 def front_matter(title: str, slug: str, description: str, *, draft: bool=False) -> str:
-    description = (description or f"{title} – a practical guide.").strip()
+    description = (description or f"{title} â€" a practical guide.").strip()
     if len(description) > 155:
         description = description[:152].rstrip() + "..."
     fm = {
@@ -329,10 +329,8 @@ def main():
     used = existing_slugs()
     generated = 0
 
+    # Process only the first topic and generate exactly one post
     for topic in (topics or []):
-        if generated >= POSTS_PER_RUN:
-            break
-
         keyword = (topic.get("keyword") or "").strip()
         if not keyword:
             continue
@@ -377,7 +375,7 @@ def main():
                         {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
                             working_title=title, summary=summary, outline_md=outline_md)}
                     ],
-                    max_tokens=2000,   # ~1.5–2k tokens output target
+                    max_tokens=2000,   # ~1.5â€"2k tokens output target
                     timeout=90,
                     json_mode=False,
                     max_retries=5,
@@ -413,6 +411,9 @@ def main():
             print(f"[done] Removed from topics.yaml and recorded in topics_done.yaml: {keyword!r}")
         except Exception as e:
             print(f"[warn] Failed to mark topic done for {keyword!r}: {e}", file=sys.stderr)
+
+        # Exit after generating exactly one post
+        break
 
     if generated == 0:
         msg = "No posts generated this run."
