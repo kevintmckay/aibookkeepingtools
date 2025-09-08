@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Enhanced robust generator: writes up to 1 post/day from topics.yaml with SEO optimization and internal linking
+Enhanced robust generator: writes 1 post/day from topics.yaml with SEO optimization and internal linking
 
 Env:
   OPENAI_API_KEY       (required)
-  POSTS_PER_RUN        default "2"                  # per invocation cap
-  MAX_POSTS_PER_DAY    default "1"                  # daily cap (local day)
-  LOCAL_TZ             default "America/Los_Angeles"
+  POSTS_PER_RUN        default "1"
   MODEL_OUTLINE        default "gpt-5-mini"
   MODEL_DRAFT          default "gpt-5-mini"
   ALLOW_DUPLICATE_SLUG set "1"/"true" to allow timestamp-suffixed duplicates (default: skip)
@@ -18,14 +16,13 @@ Env:
 import os, re, json, pathlib, time, sys, math
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo
 import yaml
 
 # --- Paths & config ---
-REPO_ROOT        = pathlib.Path(__file__).resolve().parent.parent
-CONTENT_DIR      = REPO_ROOT / "content" / "posts"
-TOPICS_FILE      = REPO_ROOT / "topics.yaml"
-TOPICS_DONE_FILE = REPO_ROOT / "topics_done.yaml"
+REPO_ROOT       = pathlib.Path(__file__).resolve().parent.parent
+CONTENT_DIR     = REPO_ROOT / "content" / "posts"
+TOPICS_FILE     = REPO_ROOT / "topics.yaml"
+TOPICS_DONE_FILE= REPO_ROOT / "topics_done.yaml"
 
 def _int(env_name: str, default: int) -> int:
     try:
@@ -33,9 +30,7 @@ def _int(env_name: str, default: int) -> int:
     except Exception:
         return default
 
-POSTS_PER_RUN       = _int("POSTS_PER_RUN", 2)
-MAX_POSTS_PER_DAY   = _int("MAX_POSTS_PER_DAY", 1)
-LOCAL_TZ            = os.getenv("LOCAL_TZ", "America/Los_Angeles")
+POSTS_PER_RUN       = _int("POSTS_PER_RUN", 1)  # Changed from 2 to 1
 MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-5-mini")
 MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-5-mini")
 ALLOW_DUP_SLUG      = os.getenv("ALLOW_DUPLICATE_SLUG", "").strip().lower() in ("1","true","yes")
@@ -140,7 +135,7 @@ def _is_modern_model(model: str) -> bool:
 RETRYABLE = (APITimeoutError, APIConnectionError, RateLimitError, APIError)
 
 def _sleep_backoff(attempt: int) -> None:
-    delay = min(2 ** attempt, 30) + 0.25 * math.sin(attempt)
+    delay = min(2 ** attempt, 30) + 0.25 * math.sin(attempt)  # jitter
     time.sleep(delay)
 
 def chat_with_retry(
@@ -247,36 +242,12 @@ def mark_topic_done(original_topic: dict, *, slug: str, title: str):
         "intent": original_topic.get("intent"),
     })
 
-# --- Daily cap helpers ---
-def _parse_iso_z(s: str) -> Optional[datetime]:
-    try:
-        if s.endswith("Z"):
-            s = s[:-1] + "+00:00"
-        return datetime.fromisoformat(s)
-    except Exception:
-        return None
-
-def posts_generated_today(tz: str) -> int:
-    """Count posts recorded in topics_done.yaml whose local date == today."""
-    data = _yaml_read(TOPICS_DONE_FILE)
-    done = data.get("topics_done", [])
-    today_local = datetime.now(ZoneInfo(tz)).date()
-    cnt = 0
-    for rec in done:
-        d = _parse_iso_z(str(rec.get("date", "")))
-        if not d:
-            continue
-        local_dt = d.astimezone(ZoneInfo(tz))
-        if local_dt.date() == today_local:
-            cnt += 1
-    return cnt
-
 def existing_slugs() -> set:
     CONTENT_DIR.mkdir(parents=True, exist_ok=True)
     return {p.stem for p in CONTENT_DIR.glob("*.md")}
 
 def front_matter(title: str, slug: str, description: str, *, draft: bool=False) -> str:
-    description = (description or f"{title} — a practical guide.").strip()
+    description = (description or f"{title} – a practical guide.").strip()
     if len(description) > 155:
         description = description[:152].rstrip() + "..."
     fm = {
@@ -358,20 +329,8 @@ def main():
     used = existing_slugs()
     generated = 0
 
-    # Enforce daily cap regardless of run frequency
-    already = posts_generated_today(LOCAL_TZ)
-    remaining_today = max(0, MAX_POSTS_PER_DAY - already)
-    if remaining_today <= 0:
-        msg = f"Daily cap reached: {already}/{MAX_POSTS_PER_DAY} post(s) already generated today ({LOCAL_TZ})."
-        print(msg)
-        if FAIL_ON_EMPTY:
-            raise SystemExit(2)
-        return
-
-    posts_allowed = min(POSTS_PER_RUN, remaining_today)
-
     for topic in (topics or []):
-        if generated >= posts_allowed:
+        if generated >= POSTS_PER_RUN:
             break
 
         keyword = (topic.get("keyword") or "").strip()
@@ -397,6 +356,7 @@ def main():
         # Duplicate handling
         if base_slug in used and not ALLOW_DUP_SLUG:
             print(f"[skip] Duplicate slug detected, skipping topic: {keyword!r} -> slug {base_slug!r}")
+            # Also mark as done so it doesn't keep trying in future runs
             mark_topic_done(topic, slug=base_slug, title=title)
             continue
         if base_slug in used and ALLOW_DUP_SLUG:
@@ -417,7 +377,7 @@ def main():
                         {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
                             working_title=title, summary=summary, outline_md=outline_md)}
                     ],
-                    max_tokens=2000,
+                    max_tokens=2000,   # ~1.5–2k tokens output target
                     timeout=90,
                     json_mode=False,
                     max_retries=5,
@@ -441,6 +401,7 @@ def main():
                     faq_md.append(f"\n### {q}\n\n{a}\n")
             body_md += "\n" + "\n".join(faq_md)
 
+        # Use meta_description if available, otherwise use summary
         description = meta_description or summary
         write_post(slug, title, description, body_md)
         used.add(slug)
@@ -459,8 +420,7 @@ def main():
         if FAIL_ON_EMPTY:
             raise SystemExit(2)
 
-    print(f"Done. Generated {generated} post(s). Daily used: {already + generated}/{MAX_POSTS_PER_DAY}.")
+    print(f"Done. Generated {generated} post(s).")
 
 if __name__ == "__main__":
     main()
-
