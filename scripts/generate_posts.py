@@ -247,7 +247,7 @@ def existing_slugs() -> set:
     return {p.stem for p in CONTENT_DIR.glob("*.md")}
 
 def front_matter(title: str, slug: str, description: str, *, draft: bool=False) -> str:
-    description = (description or f"{title} â€" a practical guide.").strip()
+            description = (description or f"{title} - a practical guide.").strip()
     if len(description) > 155:
         description = description[:152].rstrip() + "..."
     fm = {
