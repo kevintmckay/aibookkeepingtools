@@ -17,7 +17,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta, timezone
 import yaml
 
-# -- Paths & config --
+# --- Paths & config ---
 REPO_ROOT       = pathlib.Path(__file__).resolve().parent.parent
 CONTENT_DIR     = REPO_ROOT / "content" / "posts"
 TOPICS_FILE     = REPO_ROOT / "topics.yaml"
@@ -29,14 +29,14 @@ def _int(env_name: str, default: int) -> int:
     except Exception:
         return default
 
-# Force single post per run - ignore environment variable
+# Force single post per run
 POSTS_PER_RUN       = 1
 MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-5-mini")
 MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-5-mini")
 ALLOW_DUP_SLUG      = os.getenv("ALLOW_DUPLICATE_SLUG", "").strip().lower() in ("1","true","yes")
 FAIL_ON_EMPTY       = os.getenv("FAIL_ON_EMPTY", "").strip().lower() in ("1","true","yes")
 
-# -- OpenAI client --
+# --- OpenAI client ---
 try:
     from openai import OpenAI
     from openai._exceptions import (
@@ -49,9 +49,9 @@ api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise SystemExit("OPENAI_API_KEY not set")
 
-client = OpenAI(api_key=api_key, timeout=30.0)  # client-level timeout
+client = OpenAI(api_key=api_key, timeout=30.0)
 
-# -- Helpers --
+# --- Helpers ---
 def slugify(s: str) -> str:
     s = s.strip().lower()
     s = re.sub(r"[^\w\s-]", "", s)
@@ -131,11 +131,11 @@ def supports_json_mode(model: str) -> bool:
 def _is_modern_model(model: str) -> bool:
     return model.startswith(("gpt-5", "gpt-4o", "gpt-4.1"))
 
-# -- Hardened API wrapper with retries/backoff --
+# --- Hardened API wrapper with retries/backoff ---
 RETRYABLE = (APITimeoutError, APIConnectionError, RateLimitError, APIError)
 
 def _sleep_backoff(attempt: int) -> None:
-    delay = min(2 ** attempt, 30) + 0.25 * math.sin(attempt)  # jitter
+    delay = min(2 ** attempt, 30) + 0.25 * math.sin(attempt)
     time.sleep(delay)
 
 def chat_with_retry(
@@ -189,11 +189,10 @@ def backoff_sleep(i: int):
     time.sleep(min(2**i, 8))
 
 def now_past_iso() -> str:
-    # 5 minutes in the past, timezone-aware, with Z suffix for Hugo
     return (datetime.now(timezone.utc) - timedelta(minutes=5)) \
         .isoformat(timespec="seconds").replace("+00:00", "Z")
 
-# -- Topics IO --
+# --- Topics IO ---
 def _yaml_read(path: pathlib.Path) -> dict:
     if not path.exists():
         return {}
@@ -259,13 +258,13 @@ def front_matter(title: str, slug: str, description: str, *, draft: bool=False) 
         "categories": ["Guides"],
         "draft": draft,
     }
-    lines = ["--"]
+    lines = ["---"]
     for k, v in fm.items():
         if isinstance(v, list):
             lines.append(f"{k}: [{', '.join(json.dumps(x) for x in v)}]")
         else:
             lines.append(f"{k}: {json.dumps(v)}")
-    lines.append("--")
+    lines.append("---")
     return "\n".join(lines)
 
 def write_post(slug: str, title: str, description: str, body_md: str, *, draft: bool=False):
@@ -337,7 +336,7 @@ def main():
         audience = (topic.get("audience") or "Small business owners").strip()
         intent   = (topic.get("intent")   or "How-to tutorial").strip()
 
-        # -- Outline --
+        # --- Outline ---
         plan = get_outline(keyword, audience, intent)
         if not plan:
             print(f"Outline failed for: {keyword}", file=sys.stderr)
@@ -354,7 +353,6 @@ def main():
         # Duplicate handling
         if base_slug in used and not ALLOW_DUP_SLUG:
             print(f"[skip] Duplicate slug detected, skipping topic: {keyword!r} -> slug {base_slug!r}")
-            # Also mark as done so it doesn't keep trying in future runs
             mark_topic_done(topic, slug=base_slug, title=title)
             continue
         if base_slug in used and ALLOW_DUP_SLUG:
@@ -363,7 +361,7 @@ def main():
         slug = base_slug
         outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Quick Start\n- Steps\n- Common Mistakes\n- Conclusion"
 
-        # -- Draft --
+        # --- Draft ---
         draft_models = [MODEL_DRAFT_ENV, "gpt-5-mini", "gpt-4o-mini"]
         body_md = ""
         for model in draft_models:
@@ -375,7 +373,7 @@ def main():
                         {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
                             working_title=title, summary=summary, outline_md=outline_md)}
                     ],
-                    max_tokens=2000,   # ~1.5-2k tokens output target
+                    max_tokens=2000,
                     timeout=90,
                     json_mode=False,
                     max_retries=5,
