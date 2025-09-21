@@ -1,10 +1,4 @@
 topics:
-- keyword: Automated invoice processing with AI bookkeeping
-  audience: Businesses with high invoice volumes
-  intent: How-to tutorial
-- keyword: AI bookkeeping for rental property management
-  audience: Real estate investors and property managers
-  intent: How-to tutorial
 - keyword: Machine learning in bookkeeping accuracy improvements
   audience: Tech-savvy accountants and business owners
   intent: Informational research
