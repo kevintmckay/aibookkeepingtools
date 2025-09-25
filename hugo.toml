@@ -43,6 +43,7 @@ enableRobotsTXT = true
   # Assets
   [params.assets]
     favicon = "/favicon.ico"
+    favicon32 = "/favicon.svg"
     apple_touch_icon = "/apple-touch-icon.png"
 
   # Homepage SEO

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#2563eb" stroke="#1d4ed8" stroke-width="1"/>
+
+  <!-- AI/Calculator icon -->
+  <rect x="8" y="10" width="16" height="12" rx="2" fill="white"/>
+  <rect x="10" y="12" width="3" height="2" rx="0.5" fill="#2563eb"/>
+  <rect x="14" y="12" width="3" height="2" rx="0.5" fill="#2563eb"/>
+  <rect x="18" y="12" width="3" height="2" rx="0.5" fill="#2563eb"/>
+  <rect x="10" y="15" width="3" height="2" rx="0.5" fill="#2563eb"/>
+  <rect x="14" y="15" width="3" height="2" rx="0.5" fill="#2563eb"/>
+  <rect x="18" y="15" width="3" height="2" rx="0.5" fill="#2563eb"/>
+  <rect x="10" y="18" width="11" height="2" rx="0.5" fill="#1d4ed8"/>
+
+  <!-- Small "AI" text -->
+  <text x="16" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" font-weight="bold" fill="white">AI</text>
+</svg>
