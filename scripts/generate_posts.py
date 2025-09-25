@@ -14,9 +14,22 @@ Env:
 """
 
 import os, re, json, pathlib, time, sys, math
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, timedelta, timezone
 import yaml
+
+# Quality check imports (with fallbacks)
+try:
+    import textstat
+    TEXTSTAT_AVAILABLE = True
+except ImportError:
+    TEXTSTAT_AVAILABLE = False
+
+try:
+    from fuzzywuzzy import fuzz
+    FUZZY_AVAILABLE = True
+except ImportError:
+    FUZZY_AVAILABLE = False
 
 # --- Paths & config ---
 REPO_ROOT       = pathlib.Path(__file__).resolve().parent.parent
@@ -31,10 +44,21 @@ def _int(env_name: str, default: int) -> int:
         return default
 
 POSTS_PER_RUN       = _int("POSTS_PER_RUN", 2)
-MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-5-mini")
-MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-5-mini")
+MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-4o-mini")
+MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-4o-mini")
 ALLOW_DUP_SLUG      = os.getenv("ALLOW_DUPLICATE_SLUG", "").strip().lower() in ("1","true","yes")
 FAIL_ON_EMPTY       = os.getenv("FAIL_ON_EMPTY", "").strip().lower() in ("1","true","yes")
+
+# Cost monitoring configuration
+MAX_DAILY_COST_USD  = float(os.getenv("MAX_DAILY_COST_USD", "5.0"))  # Default $5/day limit
+COST_LOG_FILE       = REPO_ROOT / "costs.log"
+
+# Content quality thresholds
+MIN_WORD_COUNT      = _int("MIN_WORD_COUNT", 1200)           # Minimum words for SEO
+MAX_WORD_COUNT      = _int("MAX_WORD_COUNT", 3000)           # Maximum words to avoid bloat
+TARGET_READING_LEVEL = _int("TARGET_READING_LEVEL", 12)      # Grade level (8-12 is good for business content)
+MIN_SIMILARITY_THRESHOLD = _int("MIN_SIMILARITY_THRESHOLD", 85)  # % similarity to flag as duplicate
+ENABLE_QUALITY_CHECKS = os.getenv("ENABLE_QUALITY_CHECKS", "1").lower() in ("1", "true", "yes")
 
 # --- OpenAI client ---
 try:
@@ -59,13 +83,309 @@ def slugify(s: str) -> str:
     s = re.sub(r"-{2,}", "-", s)
     return s.strip("-")[:80] or "post"
 
+# Approximate token costs (as of 2025) - update these as needed
+TOKEN_COSTS = {
+    "gpt-4o": {"input": 0.0025, "output": 0.01},      # per 1K tokens
+    "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
+    "gpt-4": {"input": 0.003, "output": 0.006},
+    "gpt-3.5-turbo": {"input": 0.0005, "output": 0.0015},
+}
+
+def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
+    """Estimate cost based on model and token usage."""
+    costs = TOKEN_COSTS.get(model, TOKEN_COSTS["gpt-4o-mini"])  # fallback
+    return (input_tokens * costs["input"] + output_tokens * costs["output"]) / 1000
+
+def log_cost(model: str, estimated_cost: float, operation: str):
+    """Log estimated cost to file with timestamp."""
+    timestamp = datetime.now(timezone.utc).isoformat()
+    log_entry = f"{timestamp},{model},{operation},{estimated_cost:.4f}\n"
+
+    try:
+        with open(COST_LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(log_entry)
+    except Exception as e:
+        print(f"[warn] Could not log cost: {e}", file=sys.stderr)
+
+def get_daily_cost() -> float:
+    """Get today's estimated cost from log file."""
+    if not COST_LOG_FILE.exists():
+        return 0.0
+
+    today = datetime.now(timezone.utc).date()
+    daily_cost = 0.0
+
+    try:
+        with open(COST_LOG_FILE, "r", encoding="utf-8") as f:
+            for line in f:
+                parts = line.strip().split(",")
+                if len(parts) >= 4:
+                    timestamp_str = parts[0]
+                    cost = float(parts[3])
+                    log_date = datetime.fromisoformat(timestamp_str.replace("Z", "+00:00")).date()
+                    if log_date == today:
+                        daily_cost += cost
+    except Exception as e:
+        print(f"[warn] Could not read cost log: {e}", file=sys.stderr)
+
+    return daily_cost
+
+# --- Content Quality Analysis ---
+
+def analyze_readability(text: str) -> Dict[str, Any]:
+    """Analyze text readability metrics."""
+    if not TEXTSTAT_AVAILABLE:
+        return {"error": "textstat not available"}
+
+    # Strip markdown for accurate analysis
+    plain_text = re.sub(r'[#*`\[\]()]', '', text)
+    plain_text = re.sub(r'https?://[^\s]+', '', plain_text)
+
+    return {
+        "flesch_reading_ease": textstat.flesch_reading_ease(plain_text),
+        "flesch_kincaid_grade": textstat.flesch_kincaid_grade(plain_text),
+        "automated_readability_index": textstat.automated_readability_index(plain_text),
+        "coleman_liau_index": textstat.coleman_liau_index(plain_text),
+        "gunning_fog": textstat.gunning_fog(plain_text),
+        "smog_index": textstat.smog_index(plain_text),
+        "reading_time": textstat.reading_time(plain_text, ms_per_char=14.69),
+        "sentence_count": textstat.sentence_count(plain_text),
+        "word_count": len(plain_text.split()),
+    }
+
+def check_duplicate_content(new_content: str, existing_posts_dir: pathlib.Path) -> Tuple[bool, str, float]:
+    """Check if content is too similar to existing posts."""
+    if not FUZZY_AVAILABLE:
+        return False, "", 0.0
+
+    # Clean content for comparison
+    new_clean = re.sub(r'[#*`\[\]()_-]', '', new_content.lower())
+    new_clean = re.sub(r'https?://[^\s]+', '', new_clean)
+    new_clean = ' '.join(new_clean.split())[:2000]  # First 2000 chars for comparison
+
+    max_similarity = 0.0
+    most_similar_file = ""
+
+    for post_file in existing_posts_dir.glob("*.md"):
+        if post_file.name.startswith("_"):
+            continue
+
+        try:
+            existing_content = post_file.read_text(encoding="utf-8")
+            # Remove front matter
+            content_parts = existing_content.split("---", 2)
+            if len(content_parts) >= 3:
+                existing_body = content_parts[2]
+            else:
+                existing_body = existing_content
+
+            existing_clean = re.sub(r'[#*`\[\]()_-]', '', existing_body.lower())
+            existing_clean = re.sub(r'https?://[^\s]+', '', existing_clean)
+            existing_clean = ' '.join(existing_clean.split())[:2000]
+
+            similarity = fuzz.partial_ratio(new_clean, existing_clean)
+            if similarity > max_similarity:
+                max_similarity = similarity
+                most_similar_file = post_file.name
+
+        except Exception as e:
+            print(f"[warn] Could not check similarity with {post_file.name}: {e}", file=sys.stderr)
+            continue
+
+    is_duplicate = max_similarity >= MIN_SIMILARITY_THRESHOLD
+    return is_duplicate, most_similar_file, max_similarity
+
+def check_content_flags(content: str) -> List[str]:
+    """Check for potential content issues."""
+    flags = []
+
+    # Check for placeholder text
+    placeholders = ["lorem ipsum", "[insert", "[add", "TODO", "FIXME", "placeholder"]
+    content_lower = content.lower()
+    for placeholder in placeholders:
+        if placeholder in content_lower:
+            flags.append(f"Contains placeholder text: '{placeholder}'")
+
+    # Check for excessive repetition
+    sentences = re.split(r'[.!?]+', content)
+    sentence_counts = {}
+    for sentence in sentences:
+        clean_sentence = sentence.strip().lower()
+        if len(clean_sentence) > 20:  # Only check substantial sentences
+            if clean_sentence in sentence_counts:
+                sentence_counts[clean_sentence] += 1
+            else:
+                sentence_counts[clean_sentence] = 1
+
+    for sentence, count in sentence_counts.items():
+        if count >= 3:
+            flags.append(f"Repeated sentence ({count}x): '{sentence[:100]}...'")
+
+    # Check for missing sections that should be present
+    required_sections = ["##", "###"]  # Should have at least some headers
+    if not any(section in content for section in required_sections):
+        flags.append("Missing structured headers (H2/H3)")
+
+    # Check for external links (good for authority)
+    external_links = len(re.findall(r'\[([^\]]+)\]\(https?://(?!aibookkeepingtools\.com)[^\)]+\)', content))
+    if external_links < 2:
+        flags.append(f"Few external citations ({external_links}) - consider adding authoritative sources")
+
+    return flags
+
+def quality_check_content(content: str, title: str) -> Dict[str, Any]:
+    """Perform comprehensive quality check on generated content."""
+    results = {
+        "title": title,
+        "passed": True,
+        "warnings": [],
+        "errors": [],
+        "metrics": {}
+    }
+
+    if not ENABLE_QUALITY_CHECKS:
+        results["skipped"] = True
+        return results
+
+    # Basic metrics
+    word_count = len(content.split())
+    results["metrics"]["word_count"] = word_count
+
+    # Word count validation
+    if word_count < MIN_WORD_COUNT:
+        results["errors"].append(f"Content too short: {word_count} words (minimum: {MIN_WORD_COUNT})")
+        results["passed"] = False
+    elif word_count > MAX_WORD_COUNT:
+        results["warnings"].append(f"Content very long: {word_count} words (target: <{MAX_WORD_COUNT})")
+
+    # Readability analysis
+    if TEXTSTAT_AVAILABLE:
+        readability = analyze_readability(content)
+        results["metrics"]["readability"] = readability
+
+        if "error" not in readability:
+            grade_level = readability.get("flesch_kincaid_grade", 0)
+            if grade_level > TARGET_READING_LEVEL + 2:
+                results["warnings"].append(f"Reading level high: Grade {grade_level:.1f} (target: ~{TARGET_READING_LEVEL})")
+            elif grade_level < TARGET_READING_LEVEL - 4:
+                results["warnings"].append(f"Reading level low: Grade {grade_level:.1f} (target: ~{TARGET_READING_LEVEL})")
+
+    # Content flags
+    flags = check_content_flags(content)
+    for flag in flags:
+        if "placeholder" in flag.lower() or "missing" in flag.lower():
+            results["errors"].append(flag)
+            results["passed"] = False
+        else:
+            results["warnings"].append(flag)
+
+    # Duplicate check
+    if FUZZY_AVAILABLE:
+        is_duplicate, similar_file, similarity = check_duplicate_content(content, CONTENT_DIR)
+        results["metrics"]["similarity"] = {
+            "is_duplicate": is_duplicate,
+            "most_similar_file": similar_file,
+            "max_similarity": similarity
+        }
+
+        if is_duplicate:
+            results["errors"].append(f"Content too similar ({similarity:.1f}%) to existing post: {similar_file}")
+            results["passed"] = False
+        elif similarity > 70:
+            results["warnings"].append(f"Content moderately similar ({similarity:.1f}%) to: {similar_file}")
+
+    return results
+
+def calculate_content_score(quality_results: Dict[str, Any]) -> Tuple[float, str]:
+    """Calculate overall content quality score (0-100) and grade."""
+    if not quality_results.get("passed", True):
+        return 0.0, "F"
+
+    score = 100.0
+    metrics = quality_results.get("metrics", {})
+
+    # Word count scoring (0-20 points)
+    word_count = metrics.get("word_count", 0)
+    if word_count < MIN_WORD_COUNT:
+        score -= 20  # Major penalty for too short
+    elif word_count > MAX_WORD_COUNT:
+        score -= 10  # Moderate penalty for too long
+    elif MIN_WORD_COUNT <= word_count <= 2000:
+        score += 0  # Perfect range
+    else:
+        score -= 5  # Slight penalty for moderately long
+
+    # Readability scoring (0-15 points)
+    readability = metrics.get("readability", {})
+    if readability and "error" not in readability:
+        grade_level = readability.get("flesch_kincaid_grade", TARGET_READING_LEVEL)
+        if abs(grade_level - TARGET_READING_LEVEL) <= 1:
+            score += 0  # Perfect readability
+        elif abs(grade_level - TARGET_READING_LEVEL) <= 3:
+            score -= 5  # Slightly off target
+        else:
+            score -= 15  # Far from target
+
+    # External links scoring (0-10 points)
+    warnings = quality_results.get("warnings", [])
+    few_citations = any("Few external citations" in w for w in warnings)
+    if few_citations:
+        score -= 10
+
+    # Similarity penalty (0-15 points)
+    similarity = metrics.get("similarity", {})
+    if similarity:
+        sim_score = similarity.get("max_similarity", 0)
+        if sim_score > 80:
+            score -= 15  # High similarity penalty
+        elif sim_score > 70:
+            score -= 10  # Moderate similarity penalty
+        elif sim_score > 60:
+            score -= 5   # Light similarity penalty
+
+    # Warning penalties
+    warning_count = len(warnings)
+    score -= min(warning_count * 3, 15)  # Max 15 points penalty for warnings
+
+    # Ensure score is within bounds
+    score = max(0, min(100, score))
+
+    # Grade assignment
+    if score >= 90:
+        grade = "A"
+    elif score >= 80:
+        grade = "B"
+    elif score >= 70:
+        grade = "C"
+    elif score >= 60:
+        grade = "D"
+    else:
+        grade = "F"
+
+    return score, grade
+
+def add_fact_checking_prompts() -> str:
+    """Return additional prompts to encourage fact-checking."""
+    return """
+
+FACT-CHECKING REQUIREMENTS:
+- Cite authoritative sources for all financial data, statistics, and regulatory information
+- Use official vendor documentation for feature descriptions
+- Reference IRS.gov, AICPA.org, or other regulatory bodies for compliance information
+- Include publication dates for statistics (prefer data from 2024-2025)
+- Verify pricing information is current
+- Cross-reference tool capabilities with official product pages
+"""
+
 # Enhanced system prompt with internal linking
 SYSTEM_EDITOR = (
     "You are a senior technical editor specializing in AI + bookkeeping/accounting. "
     "Write with precision and practical steps. Use Markdown with H2/H3, bullets, short paragraphs. "
     "Include 2-3 internal links to related content where natural and helpful. "
     "Cite 3–5 reputable sources inline (official docs, vendor docs, gov, recognized publishers). "
-    "Avoid fluff and clickbait. Ensure accuracy. Focus on SEO best practices."
+    "Avoid fluff and clickbait. Ensure accuracy. Focus on SEO best practices. "
+    "FACT-CHECK: Verify all statistics, pricing, and feature claims against official sources. "
+    "Include publication dates for data when possible. Use current (2024-2025) information."
 )
 
 # Enhanced outline prompt with existing content context
@@ -119,6 +439,9 @@ Guidelines:
 - Use H2/H3 headings. Keep paragraphs short (2-3 sentences max)
 - Include at least one comparison table or bulleted pros/cons list
 - End with clear next steps or call-to-action
+- FACT-CHECK all claims: Verify statistics, pricing, features against official sources
+- Include publication dates for statistics and prefer 2024-2025 data
+- Use authoritative citations: IRS.gov, vendor docs, industry reports from recognized publishers
 
 Internal link format: [descriptive anchor text](/posts/slug-here/)
 
@@ -126,10 +449,10 @@ Return ONLY the Markdown body (no front matter, no backticks).
 """
 
 def supports_json_mode(model: str) -> bool:
-    return any(model.startswith(p) for p in ("gpt-5", "gpt-4o", "gpt-4.1"))
+    return any(model.startswith(p) for p in ("gpt-4o", "gpt-4", "gpt-3.5"))
 
 def _is_modern_model(model: str) -> bool:
-    return model.startswith(("gpt-5", "gpt-4o", "gpt-4.1"))
+    return model.startswith(("gpt-4o", "gpt-4"))
 
 # --- Hardened API wrapper with retries/backoff ---
 RETRYABLE = (APITimeoutError, APIConnectionError, RateLimitError, APIError)
@@ -146,6 +469,7 @@ def chat_with_retry(
     timeout: int = 60,
     json_mode: bool = False,
     max_retries: int = 5,
+    operation: str = "generation",
 ) -> str:
     kwargs: Dict[str, Any] = {"model": model, "messages": messages, "timeout": timeout}
     if json_mode and supports_json_mode(model):
@@ -161,7 +485,17 @@ def chat_with_retry(
     while True:
         try:
             resp = client.chat.completions.create(**kwargs)
-            return (resp.choices[0].message.content or "").strip()
+            content = (resp.choices[0].message.content or "").strip()
+
+            # Log estimated cost
+            if resp.usage:
+                input_tokens = resp.usage.prompt_tokens
+                output_tokens = resp.usage.completion_tokens
+                cost = estimate_cost(model, input_tokens, output_tokens)
+                log_cost(model, cost, operation)
+                print(f"[cost] {model} {operation}: ~${cost:.4f} (tokens: {input_tokens}+{output_tokens})")
+
+            return content
         except RETRYABLE as e:
             attempt += 1
             if attempt > max_retries:
@@ -280,7 +614,7 @@ def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, 
     messages = [{"role": "system", "content": SYSTEM_EDITOR},
                 {"role": "user", "content": prompt}]
 
-    models_try = [MODEL_OUTLINE_ENV, "gpt-5-mini", "gpt-4o-mini"]
+    models_try = [MODEL_OUTLINE_ENV, "gpt-4o-mini", "gpt-4o"]
     tried = set()
 
     for model in models_try:
@@ -297,6 +631,7 @@ def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, 
                 timeout=45,
                 json_mode=True,
                 max_retries=5,
+                operation="outline",
             )
             if txt:
                 try:
@@ -314,6 +649,7 @@ def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, 
                 timeout=45,
                 json_mode=False,
                 max_retries=5,
+                operation="outline",
             )
             if txt:
                 try:
@@ -325,6 +661,14 @@ def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, 
     return None
 
 def main():
+    # Check daily cost limit
+    daily_cost = get_daily_cost()
+    print(f"[cost] Current daily spending: ${daily_cost:.4f} (limit: ${MAX_DAILY_COST_USD:.2f})")
+
+    if daily_cost >= MAX_DAILY_COST_USD:
+        print(f"[cost] Daily cost limit reached (${daily_cost:.4f} >= ${MAX_DAILY_COST_USD:.2f}). Skipping generation.")
+        return
+
     topics = load_topics()
     used = existing_slugs()
     generated = 0
@@ -366,7 +710,7 @@ def main():
         outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Quick Start\n- Steps\n- Common Mistakes\n- Conclusion"
 
         # --- Draft ---
-        draft_models = [MODEL_DRAFT_ENV, "gpt-5-mini", "gpt-4o-mini"]
+        draft_models = [MODEL_DRAFT_ENV, "gpt-4o-mini", "gpt-4o"]
         body_md = ""
         for model in draft_models:
             for attempt in range(3):
@@ -381,6 +725,7 @@ def main():
                     timeout=90,
                     json_mode=False,
                     max_retries=5,
+                    operation="draft",
                 )
                 if body_md:
                     break
@@ -391,6 +736,38 @@ def main():
         if not body_md:
             print(f"Draft failed for: {title}", file=sys.stderr)
             continue
+
+        # Quality check the generated content
+        quality_results = quality_check_content(body_md, title)
+
+        if not quality_results.get("passed", True):
+            print(f"[quality] Content failed quality checks for: {title}")
+            for error in quality_results.get("errors", []):
+                print(f"  ERROR: {error}")
+            # Skip this post - don't mark as done so it can be retried
+            continue
+
+        # Log quality warnings but continue
+        warnings = quality_results.get("warnings", [])
+        if warnings:
+            print(f"[quality] Content warnings for: {title}")
+            for warning in warnings:
+                print(f"  WARN: {warning}")
+
+        # Log quality metrics
+        metrics = quality_results.get("metrics", {})
+        if metrics.get("word_count"):
+            print(f"[quality] Word count: {metrics['word_count']}")
+        if metrics.get("readability", {}).get("flesch_kincaid_grade"):
+            grade = metrics["readability"]["flesch_kincaid_grade"]
+            print(f"[quality] Reading level: Grade {grade:.1f}")
+        if metrics.get("similarity", {}).get("max_similarity", 0) > 50:
+            sim = metrics["similarity"]
+            print(f"[quality] Similarity: {sim['max_similarity']:.1f}% to {sim['most_similar_file']}")
+
+        # Calculate and display content score
+        score, grade = calculate_content_score(quality_results)
+        print(f"[quality] Content score: {score:.1f}/100 (Grade: {grade})")
 
         if faqs and ("## FAQ" not in body_md and "### FAQ" not in body_md):
             faq_md = ["\n\n## FAQ"]
