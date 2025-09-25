@@ -1,12 +1,6 @@
 topics:
-- keyword: Multi-location business AI bookkeeping setup
-  audience: Multi-location business owners
-  intent: How-to tutorial
 - keyword: AI bookkeeping for healthcare practices
   audience: Medical practice administrators
-  intent: How-to tutorial
-- keyword: Open banking and AI bookkeeping integration
-  audience: Tech-forward business owners in UK/EU
   intent: How-to tutorial
 - keyword: Troubleshooting AI bookkeeping software issues
   audience: Current AI bookkeeping users
