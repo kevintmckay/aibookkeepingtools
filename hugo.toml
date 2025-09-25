@@ -100,6 +100,18 @@ Discover comprehensive guides, reviews, and tutorials on the latest AI bookkeepi
   priority = 0.5
   filename = "sitemap.xml"
 
+# Enable pretty sitemap formatting
+[mediaTypes]
+  [mediaTypes."application/xml"]
+    suffixes = ["xml"]
+
+[outputFormats]
+  [outputFormats.sitemap]
+    mediaType = "application/xml"
+    baseName = "sitemap"
+    isPlainText = false
+    protocol = "https://"
+
 # Outputs - corrected format
 [outputs]
   home = ["HTML", "RSS", "JSON", "sitemap"]      # lowercase sitemap

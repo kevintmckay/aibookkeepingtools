@@ -1,0 +1,22 @@
+{{/* FAQ Schema for posts with FAQ front matter */}}
+{{- if .Params.faq }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {{- range $index, $faq := .Params.faq }}
+    {{- if $index }},{{ end }}
+    {
+      "@type": "Question",
+      "name": "{{ $faq.question }}",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "{{ $faq.answer | markdownify | plainify }}"
+      }
+    }
+    {{- end }}
+  ]
+}
+</script>
+{{- end }}
