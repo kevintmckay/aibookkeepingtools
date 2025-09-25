@@ -8,9 +8,6 @@ topics:
 - keyword: Open banking and AI bookkeeping integration
   audience: Tech-forward business owners in UK/EU
   intent: How-to tutorial
-- keyword: AI bookkeeping for subscription-based businesses
-  audience: SaaS and subscription company owners
-  intent: How-to tutorial
 - keyword: Troubleshooting AI bookkeeping software issues
   audience: Current AI bookkeeping users
   intent: How-to tutorial
@@ -28,9 +25,6 @@ topics:
   intent: How-to tutorial
 - keyword: AI bookkeeping API integrations and custom solutions
   audience: Developers and tech-savvy businesses
-  intent: How-to tutorial
-- keyword: AI bookkeeping for digital agencies and marketing firms
-  audience: Agency owners and marketing professionals
   intent: How-to tutorial
 - keyword: Predictive analytics in AI bookkeeping
   audience: Data-driven business leaders
