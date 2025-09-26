@@ -77,6 +77,7 @@ MAX_WORD_COUNT      = _int("MAX_WORD_COUNT", 3000)           # Maximum words to 
 TARGET_READING_LEVEL = _int("TARGET_READING_LEVEL", 12)      # Grade level (8-12 is good for business content)
 MIN_SIMILARITY_THRESHOLD = _int("MIN_SIMILARITY_THRESHOLD", 85)  # % similarity to flag as duplicate
 ENABLE_QUALITY_CHECKS = os.getenv("ENABLE_QUALITY_CHECKS", "1").lower() in ("1", "true", "yes")
+ENABLE_MULTI_PASS = os.getenv("ENABLE_MULTI_PASS", "false").lower() in ("1", "true", "yes")
 
 # --- OpenAI client ---
 try:
@@ -450,7 +451,7 @@ Return JSON with keys:
 """
 
 # Enhanced draft prompt with SEO optimization
-DRAFT_PROMPT_TMPL = """CRITICAL: Write a comprehensive, authoritative article that is MINIMUM 1,800 words (MANDATORY). Target 2,000-2,400 words for premium quality and SEO performance.
+DRAFT_PROMPT_TMPL = """CRITICAL: Write a comprehensive, authoritative article that is MINIMUM 1,400 words (MANDATORY). Target 1,600-2,000 words for premium quality and SEO performance.
 
 Working title: {working_title}
 
@@ -461,8 +462,8 @@ Outline:
 {outline_md}
 
 WORD COUNT REQUIREMENTS:
-- ABSOLUTE MINIMUM: 1,800 words (articles under 1,800 words will be rejected)
-- TARGET RANGE: 2,000-2,400 words for premium quality and SEO performance
+- ABSOLUTE MINIMUM: 1,400 words (articles under 1,400 words will be rejected)
+- TARGET RANGE: 1,600-2,000 words for premium quality and SEO performance
 - Each major section should be 250-500 words minimum
 - Expand all points with detailed explanations, real-world examples, case studies, and comprehensive context
 - Include multiple subsections within each major section for depth
@@ -511,7 +512,35 @@ QUALITY REQUIREMENTS:
 - Cite authoritative sources with publication dates (2024-2025 preferred)
 - Include industry statistics and research findings
 
-Return ONLY the Markdown body (no front matter, no backticks). ENSURE the final article is at least 1,800 words with premium quality content.
+Return ONLY the Markdown body (no front matter, no backticks). ENSURE the final article is at least 1,400 words with premium quality content.
+"""
+
+# Content expansion prompt for multi-pass generation
+EXPANSION_PROMPT_TMPL = """You are reviewing and expanding an article that needs to meet higher quality standards.
+
+Original Article:
+{original_content}
+
+Target Word Count: {target_words} words
+Current Word Count: {current_words} words
+
+EXPANSION REQUIREMENTS:
+- Add {words_needed} more words of high-quality content
+- Expand existing sections with more detailed explanations and examples
+- Add new subsections where appropriate
+- Include more case studies and real-world scenarios
+- Enhance technical depth while maintaining readability
+- Add more actionable tips and best practices
+- Include additional comparison tables or data if relevant
+
+QUALITY GUIDELINES:
+- Maintain Grade 10-12 reading level
+- Use specific examples and metrics
+- Cite additional authoritative sources
+- Ensure smooth transitions between new and existing content
+- Keep consistent tone and style throughout
+
+Return the complete expanded article (no front matter, no backticks). Focus on adding substantive value, not filler content.
 """
 
 def supports_json_mode(model: str) -> bool:
@@ -748,8 +777,50 @@ def generate_unique_slug(title: str, keyword: str, used_slugs: set) -> Optional[
     timestamp = int(datetime.now(timezone.utc).timestamp())
     return f"{base_slug}-{timestamp}"
 
+def expand_content(content: str, target_words: int) -> str:
+    """Expand content using multi-pass generation if enabled."""
+    if not ENABLE_MULTI_PASS:
+        return content
+
+    current_words = len(content.split())
+    if current_words >= target_words:
+        return content
+
+    words_needed = target_words - current_words
+    print(f"[multi-pass] Expanding content: {current_words} → {target_words} words (+{words_needed})")
+
+    expansion_models = [MODEL_DRAFT_ENV, "gpt-4o"]
+
+    for model in expansion_models:
+        expanded_content = chat_with_retry(
+            model=model,
+            messages=[
+                {"role": "system", "content": SYSTEM_EDITOR},
+                {"role": "user", "content": EXPANSION_PROMPT_TMPL.format(
+                    original_content=content,
+                    target_words=target_words,
+                    current_words=current_words,
+                    words_needed=words_needed
+                )}
+            ],
+            max_tokens=6000,
+            timeout=180,
+            json_mode=False,
+            max_retries=2,
+            operation="expansion",
+        )
+        if expanded_content:
+            final_words = len(expanded_content.split())
+            print(f"[multi-pass] Expansion complete: {final_words} words")
+            return expanded_content
+
+        backoff_sleep(1)
+
+    print(f"[multi-pass] Expansion failed, using original content")
+    return content
+
 def generate_content(title: str, summary: str, outline_list: List[str], faqs: List[Dict]) -> str:
-    """Generate article content using AI models with fallbacks."""
+    """Generate article content using AI models with fallbacks and optional multi-pass expansion."""
     outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Quick Start\n- Steps\n- Common Mistakes\n- Conclusion"
 
     draft_models = [MODEL_DRAFT_ENV, "gpt-4o-mini"]  # Use mini as fallback for speed
@@ -779,6 +850,11 @@ def generate_content(title: str, summary: str, outline_list: List[str], faqs: Li
                         if q and a:
                             faq_md.append(f"\n### {q}\n\n{a}\n")
                     body_md += "\n" + "\n".join(faq_md)
+
+                # Multi-pass expansion if enabled and content is short
+                current_words = len(body_md.split())
+                if ENABLE_MULTI_PASS and current_words < 1600:
+                    body_md = expand_content(body_md, 1600)
 
                 return body_md
 
