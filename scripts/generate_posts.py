@@ -2,15 +2,17 @@
 # -*- coding: utf-8 -*-
 
 """
-Enhanced robust generator: writes 1–2 posts/day from topics.yaml with SEO optimization and internal linking
+Enhanced robust generator: writes 1 post/day from topics.yaml with SEO optimization and internal linking
 
 Env:
   OPENAI_API_KEY       (required)
-  POSTS_PER_RUN        default "2"
-  MODEL_OUTLINE        default "gpt-5-mini"
-  MODEL_DRAFT          default "gpt-5-mini"
+  POSTS_PER_RUN        default "1"
+  MODEL_OUTLINE        default "gpt-4o"
+  MODEL_DRAFT          default "gpt-4o"
   ALLOW_DUPLICATE_SLUG set "1"/"true" to allow timestamp-suffixed duplicates (default: skip)
   FAIL_ON_EMPTY        set "1"/"true" to exit non-zero if no posts were generated (default: succeed)
+  MAX_DAILY_COST_USD   default "5.0" daily spending limit in USD
+  ENABLE_QUALITY_CHECKS default "1" enable content quality analysis
 """
 
 import os, re, json, pathlib, time, sys, math
@@ -24,12 +26,14 @@ try:
     TEXTSTAT_AVAILABLE = True
 except ImportError:
     TEXTSTAT_AVAILABLE = False
+    print("[warn] textstat not available - readability analysis disabled. Install with: pip install textstat", file=sys.stderr)
 
 try:
     from fuzzywuzzy import fuzz
     FUZZY_AVAILABLE = True
 except ImportError:
     FUZZY_AVAILABLE = False
+    print("[warn] fuzzywuzzy not available - duplicate detection disabled. Install with: pip install fuzzywuzzy[speedup]", file=sys.stderr)
 
 # --- Paths & config ---
 REPO_ROOT       = pathlib.Path(__file__).resolve().parent.parent
@@ -44,8 +48,8 @@ def _int(env_name: str, default: int) -> int:
         return default
 
 POSTS_PER_RUN       = _int("POSTS_PER_RUN", 1)
-MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-4o-mini")
-MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-4o-mini")
+MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-4o")
+MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-4o")
 ALLOW_DUP_SLUG      = os.getenv("ALLOW_DUPLICATE_SLUG", "").strip().lower() in ("1","true","yes")
 FAIL_ON_EMPTY       = os.getenv("FAIL_ON_EMPTY", "").strip().lower() in ("1","true","yes")
 
@@ -83,12 +87,13 @@ def slugify(s: str) -> str:
     s = re.sub(r"-{2,}", "-", s)
     return s.strip("-")[:80] or "post"
 
-# Approximate token costs (as of 2025) - update these as needed
+# Token costs (as of January 2025) - verify at https://openai.com/api/pricing/
 TOKEN_COSTS = {
-    "gpt-4o": {"input": 0.0025, "output": 0.01},      # per 1K tokens
-    "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
-    "gpt-4": {"input": 0.003, "output": 0.006},
-    "gpt-3.5-turbo": {"input": 0.0005, "output": 0.0015},
+    "gpt-4o": {"input": 0.0025, "output": 0.01},           # per 1K tokens
+    "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},   # per 1K tokens
+    "gpt-4": {"input": 0.003, "output": 0.006},            # per 1K tokens (legacy)
+    "gpt-3.5-turbo": {"input": 0.0005, "output": 0.0015}, # per 1K tokens (legacy)
+    # Note: Costs may change - check OpenAI pricing page for updates
 }
 
 def estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
@@ -107,14 +112,25 @@ def log_cost(model: str, estimated_cost: float, operation: str):
     except Exception as e:
         print(f"[warn] Could not log cost: {e}", file=sys.stderr)
 
+# Daily cost caching
+_daily_cost_cache: Optional[float] = None
+_cache_date: Optional[datetime] = None
+
 def get_daily_cost() -> float:
-    """Get today's estimated cost from log file."""
+    """Get today's estimated cost from log file with caching."""
+    global _daily_cost_cache, _cache_date
+
     if not COST_LOG_FILE.exists():
         return 0.0
 
     today = datetime.now(timezone.utc).date()
-    daily_cost = 0.0
 
+    # Return cached value if available and current
+    if _cache_date == today and _daily_cost_cache is not None:
+        return _daily_cost_cache
+
+    # Calculate daily cost
+    daily_cost = 0.0
     try:
         with open(COST_LOG_FILE, "r", encoding="utf-8") as f:
             for line in f:
@@ -127,6 +143,11 @@ def get_daily_cost() -> float:
                         daily_cost += cost
     except Exception as e:
         print(f"[warn] Could not read cost log: {e}", file=sys.stderr)
+        return daily_cost
+
+    # Cache the result
+    _daily_cost_cache = daily_cost
+    _cache_date = today
 
     return daily_cost
 
@@ -608,13 +629,159 @@ def write_post(slug: str, title: str, description: str, body_md: str, *, draft: 
     out.write_text(front_matter(title, slug, description, draft=draft) + "\n\n" + body_md.strip() + "\n", encoding="utf-8")
     print(f"Wrote: {out.relative_to(REPO_ROOT)}")
 
+def process_topic(topic: Dict[str, Any], used_slugs: set) -> Optional[str]:
+    """
+    Process a single topic through the complete content generation pipeline.
+    Returns the slug if successful, None if failed.
+    """
+    keyword = (topic.get("keyword") or "").strip()
+    if not keyword:
+        return None
+
+    audience = (topic.get("audience") or "Small business owners").strip()
+    intent = (topic.get("intent") or "How-to tutorial").strip()
+
+    print(f"\n[topic] Processing: {keyword}")
+
+    # Generate outline
+    plan = get_outline(keyword, audience, intent)
+    if not plan:
+        print(f"[error] Outline failed for: {keyword}", file=sys.stderr)
+        return None
+
+    # Extract planning data
+    title = (plan.get("working_title") or keyword.title()).strip()
+    summary = (plan.get("summary") or "").strip()
+    meta_description = (plan.get("meta_description") or summary).strip()
+    outline_list = plan.get("outline") or []
+    faqs = plan.get("faqs") or []
+
+    # Generate slug and handle duplicates
+    slug = generate_unique_slug(title, keyword, used_slugs)
+    if not slug:
+        # Duplicate detected and ALLOW_DUP_SLUG is False
+        print(f"[skip] Duplicate slug detected, marking as done: {keyword!r}")
+        mark_topic_done(topic, slug=slugify(title) or slugify(keyword), title=title)
+        return None
+
+    # Generate content
+    body_md = generate_content(title, summary, outline_list, faqs)
+    if not body_md:
+        print(f"[error] Content generation failed for: {title}", file=sys.stderr)
+        return None
+
+    # Quality check
+    if not validate_content_quality(body_md, title):
+        print(f"[skip] Content failed quality checks: {title}")
+        return None
+
+    # Save post
+    description = meta_description or summary
+    write_post(slug, title, description, body_md)
+
+    # Mark as completed
+    try:
+        mark_topic_done(topic, slug=slug, title=title)
+        print(f"[done] Generated post: {slug}")
+    except Exception as e:
+        print(f"[warn] Failed to mark topic done for {keyword!r}: {e}", file=sys.stderr)
+
+    return slug
+
+def generate_unique_slug(title: str, keyword: str, used_slugs: set) -> Optional[str]:
+    """Generate unique slug, handling duplicates according to settings."""
+    base_slug = slugify(title) or slugify(keyword)
+
+    if base_slug not in used_slugs:
+        return base_slug
+
+    if not ALLOW_DUP_SLUG:
+        return None  # Skip duplicate
+
+    # Generate timestamped slug
+    timestamp = int(datetime.now(timezone.utc).timestamp())
+    return f"{base_slug}-{timestamp}"
+
+def generate_content(title: str, summary: str, outline_list: List[str], faqs: List[Dict]) -> str:
+    """Generate article content using AI models with fallbacks."""
+    outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Quick Start\n- Steps\n- Common Mistakes\n- Conclusion"
+
+    draft_models = [MODEL_DRAFT_ENV, "gpt-4o", "gpt-4o-mini"]
+
+    for model in draft_models:
+        for attempt in range(3):
+            body_md = chat_with_retry(
+                model=model,
+                messages=[
+                    {"role": "system", "content": SYSTEM_EDITOR},
+                    {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
+                        working_title=title, summary=summary, outline_md=outline_md)}
+                ],
+                max_tokens=2000,
+                timeout=90,
+                json_mode=False,
+                max_retries=5,
+                operation="draft",
+            )
+            if body_md:
+                # Add FAQs if not already present
+                if faqs and ("## FAQ" not in body_md and "### FAQ" not in body_md):
+                    faq_md = ["\n\n## FAQ"]
+                    for qa in faqs[:5]:
+                        q = (qa.get("q") or qa.get("question") or "").strip()
+                        a = (qa.get("a") or qa.get("answer") or "").strip()
+                        if q and a:
+                            faq_md.append(f"\n### {q}\n\n{a}\n")
+                    body_md += "\n" + "\n".join(faq_md)
+
+                return body_md
+
+            backoff_sleep(attempt)
+
+    return ""
+
+def validate_content_quality(content: str, title: str) -> bool:
+    """Validate content quality and log results. Returns True if content passes."""
+    quality_results = quality_check_content(content, title)
+
+    # Check if content passes quality checks
+    if not quality_results.get("passed", True):
+        print(f"[quality] Content failed quality checks for: {title}")
+        for error in quality_results.get("errors", []):
+            print(f"  ERROR: {error}")
+        return False
+
+    # Log warnings but continue
+    warnings = quality_results.get("warnings", [])
+    if warnings:
+        print(f"[quality] Content warnings for: {title}")
+        for warning in warnings:
+            print(f"  WARN: {warning}")
+
+    # Log quality metrics
+    metrics = quality_results.get("metrics", {})
+    if metrics.get("word_count"):
+        print(f"[quality] Word count: {metrics['word_count']}")
+    if metrics.get("readability", {}).get("flesch_kincaid_grade"):
+        grade = metrics["readability"]["flesch_kincaid_grade"]
+        print(f"[quality] Reading level: Grade {grade:.1f}")
+    if metrics.get("similarity", {}).get("max_similarity", 0) > 50:
+        sim = metrics["similarity"]
+        print(f"[quality] Similarity: {sim['max_similarity']:.1f}% to {sim['most_similar_file']}")
+
+    # Calculate and display content score
+    score, grade = calculate_content_score(quality_results)
+    print(f"[quality] Content score: {score:.1f}/100 (Grade: {grade})")
+
+    return True
+
 def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, Any]]:
     """Try outline across models & modes with retries."""
     prompt = OUTLINE_PROMPT_TMPL.format(keyword=keyword, audience=audience, intent=intent)
     messages = [{"role": "system", "content": SYSTEM_EDITOR},
                 {"role": "user", "content": prompt}]
 
-    models_try = [MODEL_OUTLINE_ENV, "gpt-4o-mini", "gpt-4o"]
+    models_try = [MODEL_OUTLINE_ENV, "gpt-4o", "gpt-4o-mini"]
     tried = set()
 
     for model in models_try:
@@ -661,6 +828,7 @@ def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, 
     return None
 
 def main():
+    """Main function: check costs, load topics, and generate posts."""
     # Check daily cost limit
     daily_cost = get_daily_cost()
     print(f"[cost] Current daily spending: ${daily_cost:.4f} (limit: ${MAX_DAILY_COST_USD:.2f})")
@@ -669,135 +837,35 @@ def main():
         print(f"[cost] Daily cost limit reached (${daily_cost:.4f} >= ${MAX_DAILY_COST_USD:.2f}). Skipping generation.")
         return
 
+    # Load topics and existing content
     topics = load_topics()
-    used = existing_slugs()
+    if not topics:
+        print("[warn] No topics available for generation")
+        return
+
+    used_slugs = existing_slugs()
     generated = 0
 
-    for topic in (topics or []):
+    print(f"[info] Processing up to {POSTS_PER_RUN} topic(s) from {len(topics)} available")
+
+    # Process topics
+    for topic in topics:
         if generated >= POSTS_PER_RUN:
             break
 
-        keyword = (topic.get("keyword") or "").strip()
-        if not keyword:
-            continue
-        audience = (topic.get("audience") or "Small business owners").strip()
-        intent   = (topic.get("intent")   or "How-to tutorial").strip()
+        slug = process_topic(topic, used_slugs)
+        if slug:
+            used_slugs.add(slug)
+            generated += 1
 
-        # --- Outline ---
-        plan = get_outline(keyword, audience, intent)
-        if not plan:
-            print(f"Outline failed for: {keyword}", file=sys.stderr)
-            continue
-
-        title   = (plan.get("working_title") or keyword.title()).strip()
-        summary = (plan.get("summary") or "").strip()
-        meta_description = (plan.get("meta_description") or summary).strip()
-        outline_list = plan.get("outline") or []
-        faqs = plan.get("faqs") or []
-
-        base_slug = slugify(title) or slugify(keyword)
-
-        # Duplicate handling
-        if base_slug in used and not ALLOW_DUP_SLUG:
-            print(f"[skip] Duplicate slug detected, skipping topic: {keyword!r} -> slug {base_slug!r}")
-            # Also mark as done so it doesn't keep trying in future runs
-            mark_topic_done(topic, slug=base_slug, title=title)
-            continue
-        if base_slug in used and ALLOW_DUP_SLUG:
-            base_slug = f"{base_slug}-{int(datetime.now(timezone.utc).timestamp())}"
-
-        slug = base_slug
-        outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Quick Start\n- Steps\n- Common Mistakes\n- Conclusion"
-
-        # --- Draft ---
-        draft_models = [MODEL_DRAFT_ENV, "gpt-4o-mini", "gpt-4o"]
-        body_md = ""
-        for model in draft_models:
-            for attempt in range(3):
-                body_md = chat_with_retry(
-                    model=model,
-                    messages=[
-                        {"role": "system", "content": SYSTEM_EDITOR},
-                        {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
-                            working_title=title, summary=summary, outline_md=outline_md)}
-                    ],
-                    max_tokens=2000,   # ~1.5–2k tokens output target
-                    timeout=90,
-                    json_mode=False,
-                    max_retries=5,
-                    operation="draft",
-                )
-                if body_md:
-                    break
-                backoff_sleep(attempt)
-            if body_md:
-                break
-
-        if not body_md:
-            print(f"Draft failed for: {title}", file=sys.stderr)
-            continue
-
-        # Quality check the generated content
-        quality_results = quality_check_content(body_md, title)
-
-        if not quality_results.get("passed", True):
-            print(f"[quality] Content failed quality checks for: {title}")
-            for error in quality_results.get("errors", []):
-                print(f"  ERROR: {error}")
-            # Skip this post - don't mark as done so it can be retried
-            continue
-
-        # Log quality warnings but continue
-        warnings = quality_results.get("warnings", [])
-        if warnings:
-            print(f"[quality] Content warnings for: {title}")
-            for warning in warnings:
-                print(f"  WARN: {warning}")
-
-        # Log quality metrics
-        metrics = quality_results.get("metrics", {})
-        if metrics.get("word_count"):
-            print(f"[quality] Word count: {metrics['word_count']}")
-        if metrics.get("readability", {}).get("flesch_kincaid_grade"):
-            grade = metrics["readability"]["flesch_kincaid_grade"]
-            print(f"[quality] Reading level: Grade {grade:.1f}")
-        if metrics.get("similarity", {}).get("max_similarity", 0) > 50:
-            sim = metrics["similarity"]
-            print(f"[quality] Similarity: {sim['max_similarity']:.1f}% to {sim['most_similar_file']}")
-
-        # Calculate and display content score
-        score, grade = calculate_content_score(quality_results)
-        print(f"[quality] Content score: {score:.1f}/100 (Grade: {grade})")
-
-        if faqs and ("## FAQ" not in body_md and "### FAQ" not in body_md):
-            faq_md = ["\n\n## FAQ"]
-            for qa in faqs[:5]:
-                q = (qa.get("q") or qa.get("question") or "").strip()
-                a = (qa.get("a") or qa.get("answer") or "").strip()
-                if q and a:
-                    faq_md.append(f"\n### {q}\n\n{a}\n")
-            body_md += "\n" + "\n".join(faq_md)
-
-        # Use meta_description if available, otherwise use summary
-        description = meta_description or summary
-        write_post(slug, title, description, body_md)
-        used.add(slug)
-        generated += 1
-
-        # Mark topic as done immediately (atomic update)
-        try:
-            mark_topic_done(topic, slug=slug, title=title)
-            print(f"[done] Removed from topics.yaml and recorded in topics_done.yaml: {keyword!r}")
-        except Exception as e:
-            print(f"[warn] Failed to mark topic done for {keyword!r}: {e}", file=sys.stderr)
-
+    # Report results
     if generated == 0:
         msg = "No posts generated this run."
-        print(msg)
+        print(f"[info] {msg}")
         if FAIL_ON_EMPTY:
             raise SystemExit(2)
-
-    print(f"Done. Generated {generated} post(s).")
+    else:
+        print(f"[info] Done. Generated {generated} post(s).")
 
 if __name__ == "__main__":
     main()
