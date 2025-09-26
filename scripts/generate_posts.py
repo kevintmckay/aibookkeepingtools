@@ -414,13 +414,15 @@ FACT-CHECKING REQUIREMENTS:
 
 # Enhanced system prompt with internal linking
 SYSTEM_EDITOR = (
-    "You are a senior technical editor specializing in AI + bookkeeping/accounting. "
-    "Write with precision and practical steps. Use Markdown with H2/H3, bullets, short paragraphs. "
-    "Include 2-3 internal links to related content where natural and helpful. "
-    "Cite 3–5 reputable sources inline (official docs, vendor docs, gov, recognized publishers). "
-    "Avoid fluff and clickbait. Ensure accuracy. Focus on SEO best practices. "
-    "FACT-CHECK: Verify all statistics, pricing, and feature claims against official sources. "
-    "Include publication dates for data when possible. Use current (2024-2025) information."
+    "You are a senior technical editor and subject matter expert specializing in AI + bookkeeping/accounting. "
+    "Write authoritative, comprehensive content with deep technical knowledge and practical expertise. "
+    "Use clear, professional language at a Grade 10-12 reading level with shorter sentences for accessibility. "
+    "Structure content with detailed H2/H3 headings, comprehensive bullet points, and well-developed paragraphs. "
+    "Include 3-4 strategic internal links to related content where they provide genuine value. "
+    "Cite 5-8 authoritative sources inline with publication dates (official vendor docs, government sources, industry reports). "
+    "Provide specific examples, case studies, metrics, and actionable insights throughout. "
+    "Focus on premium quality content that demonstrates expertise and builds trust. "
+    "FACT-CHECK: Verify all statistics, pricing, and feature claims against official sources with 2024-2025 data preferred."
 )
 
 # Enhanced outline prompt with existing content context
@@ -448,7 +450,7 @@ Return JSON with keys:
 """
 
 # Enhanced draft prompt with SEO optimization
-DRAFT_PROMPT_TMPL = """CRITICAL: Write a comprehensive article that is MINIMUM 1,600 words (MANDATORY). Target 1,800-2,100 words for optimal SEO performance.
+DRAFT_PROMPT_TMPL = """CRITICAL: Write a comprehensive, authoritative article that is MINIMUM 1,800 words (MANDATORY). Target 2,000-2,400 words for premium quality and SEO performance.
 
 Working title: {working_title}
 
@@ -459,10 +461,11 @@ Outline:
 {outline_md}
 
 WORD COUNT REQUIREMENTS:
-- ABSOLUTE MINIMUM: 1,600 words (articles under 1,600 words will be rejected)
-- TARGET RANGE: 1,800-2,100 words for best SEO performance
-- Each major section should be 200-400 words minimum
-- Expand all points with detailed explanations, examples, and context
+- ABSOLUTE MINIMUM: 1,800 words (articles under 1,800 words will be rejected)
+- TARGET RANGE: 2,000-2,400 words for premium quality and SEO performance
+- Each major section should be 250-500 words minimum
+- Expand all points with detailed explanations, real-world examples, case studies, and comprehensive context
+- Include multiple subsections within each major section for depth
 
 Guidelines:
 - Include the target keyword naturally in the first 100 words and in H2 headings where appropriate
@@ -473,14 +476,17 @@ Guidelines:
   * /posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/
   * /posts/ai-tax-prep-tools-for-self-employed-in-2025/
 - Technical depth; step-by-step where applicable with detailed explanations
-- Include a comprehensive "Quick Start" section early in the post (minimum 150 words)
-- Add a detailed "Common Mistakes to Avoid" or "Pitfalls & Gotchas" section (minimum 200 words)
+- Include a comprehensive "Quick Start" section early in the post (minimum 200 words with step-by-step instructions)
+- Add a detailed "Common Mistakes to Avoid" or "Pitfalls & Gotchas" section (minimum 300 words with specific examples)
+- Include a "Best Practices" or "Advanced Tips" section (minimum 200 words)
+- Add a "Troubleshooting" or "Implementation Challenges" section where relevant (minimum 150 words)
 - Include 3–5 authoritative citations inline as Markdown links with context
 - Add a comprehensive 5-item FAQ at the end (use/refine provided Q/A, minimum 50 words per answer)
 - Use H2/H3 headings. Expand paragraphs with detailed explanations (3-5 sentences each)
-- REQUIRED: Include at least one detailed comparison table with REAL tool names (QuickBooks AI, Xero, FreshBooks AI, etc.)
-- REQUIRED: Use specific, verifiable pricing from official vendor websites with detailed explanations
-- End with comprehensive next steps or call-to-action section (minimum 100 words)
+- REQUIRED: Include at least two detailed comparison tables with REAL tool names, features, and current pricing
+- REQUIRED: Use specific, verifiable pricing from official vendor websites with detailed explanations and value analysis
+- REQUIRED: Include real case studies or examples with specific metrics and outcomes
+- End with comprehensive next steps or call-to-action section (minimum 150 words with specific actionable steps)
 - MANDATORY: All statistics must include publication dates from 2024-2025 with context
 - MANDATORY: Cite specific vendor documentation, official government sources (IRS.gov), and recognized industry reports
 - NO GENERIC PLACEHOLDERS: Never use "Tool A", "Company X", or similar - always use real names
@@ -497,7 +503,15 @@ CONTENT EXPANSION TECHNIQUES:
 
 Internal link format: [descriptive anchor text](/posts/slug-here/)
 
-Return ONLY the Markdown body (no front matter, no backticks). ENSURE the final article is at least 1,600 words.
+QUALITY REQUIREMENTS:
+- Write at a Grade 10-12 reading level (accessible but professional)
+- Use shorter sentences (15-20 words average) and simpler vocabulary where possible
+- Include transition words and phrases for better flow
+- Add specific examples, metrics, and data points throughout
+- Cite authoritative sources with publication dates (2024-2025 preferred)
+- Include industry statistics and research findings
+
+Return ONLY the Markdown body (no front matter, no backticks). ENSURE the final article is at least 1,800 words with premium quality content.
 """
 
 def supports_json_mode(model: str) -> bool:
@@ -529,9 +543,10 @@ def chat_with_retry(
 
     if _is_modern_model(model):
         kwargs["max_completion_tokens"] = max_tokens
+        kwargs["temperature"] = 0.3  # Lower temperature for more focused, consistent output
     else:
         kwargs["max_tokens"] = max_tokens
-        kwargs["temperature"] = 1.0
+        kwargs["temperature"] = 0.3
 
     attempt = 0
     while True:
@@ -748,8 +763,8 @@ def generate_content(title: str, summary: str, outline_list: List[str], faqs: Li
                     {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
                         working_title=title, summary=summary, outline_md=outline_md)}
                 ],
-                max_tokens=4000,
-                timeout=90,
+                max_tokens=5000,
+                timeout=150,
                 json_mode=False,
                 max_retries=3,
                 operation="draft",
@@ -825,8 +840,8 @@ def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, 
             txt = chat_with_retry(
                 model=model,
                 messages=messages,
-                max_tokens=800,
-                timeout=30,
+                max_tokens=1200,
+                timeout=60,
                 json_mode=True,
                 max_retries=3,
                 operation="outline",
@@ -843,8 +858,8 @@ def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, 
             txt = chat_with_retry(
                 model=model,
                 messages=messages,
-                max_tokens=800,
-                timeout=30,
+                max_tokens=1200,
+                timeout=60,
                 json_mode=False,
                 max_retries=3,
                 operation="outline",
