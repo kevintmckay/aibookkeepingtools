@@ -1,12 +1,6 @@
 topics:
-- keyword: AI bookkeeping for healthcare practices
-  audience: Medical practice administrators
-  intent: How-to tutorial
 - keyword: Troubleshooting AI bookkeeping software issues
   audience: Current AI bookkeeping users
-  intent: How-to tutorial
-- keyword: AI bookkeeping for retail and inventory management
-  audience: Retail business owners
   intent: How-to tutorial
 - keyword: Advanced AI bookkeeping automation workflows
   audience: Power users and accounting professionals
@@ -16,9 +10,6 @@ topics:
   intent: How-to tutorial
 - keyword: Switching between AI bookkeeping platforms
   audience: Users considering platform migration
-  intent: How-to tutorial
-- keyword: AI bookkeeping API integrations and custom solutions
-  audience: Developers and tech-savvy businesses
   intent: How-to tutorial
 - keyword: Predictive analytics in AI bookkeeping
   audience: Data-driven business leaders
