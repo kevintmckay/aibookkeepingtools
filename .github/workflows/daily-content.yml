@@ -1,9 +1,9 @@
 name: daily-content
 
 on:
-  # schedule:
-    # 01:00 PM US/Pacific ≈ 21:00 UTC
-    # - cron: "0 21 * * *"
+  schedule:
+    # 2:25 AM UTC daily
+    - cron: "25 2 * * *"
   workflow_dispatch: {}  # Keep manual trigger available
 
 permissions:
@@ -38,11 +38,11 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           POSTS_PER_RUN: "1"
-          MODEL_OUTLINE: "gpt-4o"
-          MODEL_DRAFT: "gpt-4o"          # Premium quality enabled
-          MAX_DAILY_COST_USD: "5.0"      # $5/day budget limit
+          MODEL_OUTLINE: "o3"
+          MODEL_DRAFT: "o3"              # Best reasoning model for premium content
+          MAX_DAILY_COST_USD: "10.0"     # Increased budget for premium model
           ENABLE_QUALITY_CHECKS: "1"     # Enable content quality analysis
-          MIN_WORD_COUNT: "1200"          # Minimum words for SEO
+          MIN_WORD_COUNT: "1600"          # Premium minimum word count for high-quality content
           TARGET_READING_LEVEL: "12"      # Target grade level for content
           DISABLE_HEARTBEAT: "1"        # skip heartbeat files in CI
         run: |

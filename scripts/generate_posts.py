@@ -423,7 +423,10 @@ SYSTEM_EDITOR = (
     "Cite 5-8 authoritative sources inline with publication dates (official vendor docs, government sources, industry reports). "
     "Provide specific examples, case studies, metrics, and actionable insights throughout. "
     "Focus on premium quality content that demonstrates expertise and builds trust. "
-    "FACT-CHECK: Verify all statistics, pricing, and feature claims against official sources with 2024-2025 data preferred."
+    "QUALITY REQUIREMENTS: Use realistic company names (avoid 'XYZ Corp'), provide specific statistics with exact dates, "
+    "reference real tools and companies where possible, include concrete industry-specific scenarios rather than generic examples. "
+    "FACT-CHECK: Verify all statistics, pricing, and feature claims against official sources with 2024-2025 data preferred. "
+    "AUTHENTICITY: Make examples concrete and believable - use actual company names, real pricing tiers, specific feature sets."
 )
 
 # Enhanced outline prompt with existing content context
