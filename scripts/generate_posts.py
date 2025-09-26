@@ -91,7 +91,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
     raise SystemExit("OPENAI_API_KEY not set")
 
-client = OpenAI(api_key=api_key, timeout=30.0)  # client-level timeout
+client = OpenAI(api_key=api_key, timeout=20.0)  # reduced client-level timeout
 
 # --- Helpers ---
 def slugify(s: str) -> str:
@@ -721,10 +721,10 @@ def generate_content(title: str, summary: str, outline_list: List[str], faqs: Li
     """Generate article content using AI models with fallbacks."""
     outline_md = "\n".join(f"- {h}" for h in outline_list) if outline_list else "- Introduction\n- Quick Start\n- Steps\n- Common Mistakes\n- Conclusion"
 
-    draft_models = [MODEL_DRAFT_ENV, "gpt-4o", "gpt-4o-mini"]
+    draft_models = [MODEL_DRAFT_ENV, "gpt-4o-mini"]  # Use mini as fallback for speed
 
     for model in draft_models:
-        for attempt in range(3):
+        for attempt in range(2):  # Reduced attempts
             body_md = chat_with_retry(
                 model=model,
                 messages=[
@@ -732,10 +732,10 @@ def generate_content(title: str, summary: str, outline_list: List[str], faqs: Li
                     {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
                         working_title=title, summary=summary, outline_md=outline_md)}
                 ],
-                max_tokens=3000,
-                timeout=90,
+                max_tokens=2500,
+                timeout=60,
                 json_mode=False,
-                max_retries=5,
+                max_retries=3,
                 operation="draft",
             )
             if body_md:
@@ -805,14 +805,14 @@ def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, 
         tried.add(model)
 
         # 1) JSON mode
-        for attempt in range(3):
+        for attempt in range(2):  # Reduced attempts
             txt = chat_with_retry(
                 model=model,
                 messages=messages,
-                max_tokens=1000,
-                timeout=45,
+                max_tokens=800,
+                timeout=30,
                 json_mode=True,
-                max_retries=5,
+                max_retries=3,
                 operation="outline",
             )
             if txt:
@@ -823,14 +823,14 @@ def get_outline(keyword: str, audience: str, intent: str) -> Optional[Dict[str, 
             backoff_sleep(attempt)
 
         # 2) Plain mode, then extract JSON
-        for attempt in range(3):
+        for attempt in range(2):  # Reduced attempts
             txt = chat_with_retry(
                 model=model,
                 messages=messages,
-                max_tokens=1000,
-                timeout=45,
+                max_tokens=800,
+                timeout=30,
                 json_mode=False,
-                max_retries=5,
+                max_retries=3,
                 operation="outline",
             )
             if txt:

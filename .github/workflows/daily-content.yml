@@ -16,7 +16,7 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # Increased from 30 to account for longer wait times
+    timeout-minutes: 35  # Reduced from 45 to optimize CI time
 
     steps:
       - name: Checkout
@@ -152,10 +152,10 @@ jobs:
           echo "This typically takes 3-5 minutes for Hugo sites on Cloudflare Pages"
           
           # Initial wait to let Cloudflare Pages start building
-          sleep 120  # 2 minutes initial wait
-          
+          sleep 90  # 1.5 minutes initial wait
+
           tries=0
-          max=10
+          max=8
           all_live=0
           
           while [ $tries -lt $max ]; do
@@ -185,15 +185,15 @@ jobs:
             fi
             
             # Progressive backoff
-            if [ $tries -le 3 ]; then
+            if [ $tries -le 2 ]; then
+              echo "Waiting 45 seconds before next attempt..."
+              sleep 45
+            elif [ $tries -le 5 ]; then
               echo "Waiting 60 seconds before next attempt..."
               sleep 60
-            elif [ $tries -le 7 ]; then
+            else
               echo "Waiting 90 seconds before next attempt..."
               sleep 90
-            else
-              echo "Waiting 120 seconds before next attempt..."
-              sleep 120
             fi
           done
 
