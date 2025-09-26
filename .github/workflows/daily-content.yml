@@ -37,9 +37,9 @@ jobs:
       - name: Generate posts (with retries)
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          POSTS_PER_RUN: "2"
-          MODEL_OUTLINE: "gpt-4o-mini"
-          MODEL_DRAFT: "gpt-4o-mini"     # upgrade to "gpt-4o" for better quality if budget allows
+          POSTS_PER_RUN: "1"
+          MODEL_OUTLINE: "gpt-4o"
+          MODEL_DRAFT: "gpt-4o"          # Premium quality enabled
           MAX_DAILY_COST_USD: "5.0"      # $5/day budget limit
           ENABLE_QUALITY_CHECKS: "1"     # Enable content quality analysis
           MIN_WORD_COUNT: "1200"          # Minimum words for SEO

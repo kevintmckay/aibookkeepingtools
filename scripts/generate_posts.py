@@ -20,6 +20,20 @@ from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, timedelta, timezone
 import yaml
 
+# Load environment variables from .env file if it exists
+def load_env_file():
+    env_file = pathlib.Path(__file__).resolve().parent.parent / ".env"
+    if env_file.exists():
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    if key.strip() and not os.getenv(key.strip()):
+                        os.environ[key.strip()] = value.strip()
+
+load_env_file()
+
 # Quality check imports (with fallbacks)
 try:
     import textstat
@@ -458,11 +472,12 @@ Guidelines:
 - Include 3–5 authoritative citations inline as Markdown links
 - Add a 5-item FAQ at the end (use/refine provided Q/A)
 - Use H2/H3 headings. Keep paragraphs short (2-3 sentences max)
-- Include at least one comparison table or bulleted pros/cons list
+- REQUIRED: Include at least one comparison table with REAL tool names (QuickBooks AI, Xero, FreshBooks AI, etc.)
+- REQUIRED: Use specific, verifiable pricing from official vendor websites
 - End with clear next steps or call-to-action
-- FACT-CHECK all claims: Verify statistics, pricing, features against official sources
-- Include publication dates for statistics and prefer 2024-2025 data
-- Use authoritative citations: IRS.gov, vendor docs, industry reports from recognized publishers
+- MANDATORY: All statistics must include publication dates from 2024-2025
+- MANDATORY: Cite specific vendor documentation, official government sources (IRS.gov), and recognized industry reports
+- NO GENERIC PLACEHOLDERS: Never use "Tool A", "Company X", or similar - always use real names
 
 Internal link format: [descriptive anchor text](/posts/slug-here/)
 
@@ -717,7 +732,7 @@ def generate_content(title: str, summary: str, outline_list: List[str], faqs: Li
                     {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
                         working_title=title, summary=summary, outline_md=outline_md)}
                 ],
-                max_tokens=2000,
+                max_tokens=3000,
                 timeout=90,
                 json_mode=False,
                 max_retries=5,
