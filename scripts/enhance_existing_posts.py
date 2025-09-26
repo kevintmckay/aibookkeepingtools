@@ -144,7 +144,7 @@ CONTENT EXPANSION AREAS:
 7. Add "Implementation Timeline" or "Getting Started" roadmap
 8. Include "Advanced Tips" or "Pro Strategies" section
 
-OUTPUT: Return the complete enhanced blog post in markdown format, preserving the original frontmatter but updating the content to premium standards.
+OUTPUT: Return ONLY the enhanced blog post content (body text) in markdown format. Do NOT include frontmatter, YAML headers, or markdown code blocks. Start directly with the enhanced content. The original frontmatter will be preserved automatically.
 """
 
 def extract_frontmatter_and_content(post_path: str) -> tuple[Dict[str, Any], str]:
@@ -253,7 +253,34 @@ def enhance_single_post(post_path: str, output_path: Optional[str] = None) -> bo
         if output_path is None:
             output_path = post_path.replace('.md', '_enhanced.md')
 
-        # Write enhanced post
+        # Clean enhanced content - remove any duplicate frontmatter
+        enhanced_content = enhanced_content.strip()
+
+        # Remove markdown code blocks and duplicate frontmatter from enhanced content
+        if enhanced_content.startswith('```markdown'):
+            # Find the end of the code block and extract just the content
+            lines = enhanced_content.split('\n')
+            content_start = 0
+            in_frontmatter = False
+
+            for i, line in enumerate(lines):
+                if line.strip() == '```markdown':
+                    continue
+                elif line.strip() == '---' and not in_frontmatter:
+                    in_frontmatter = True
+                    continue
+                elif line.strip() == '---' and in_frontmatter:
+                    in_frontmatter = False
+                    content_start = i + 1
+                    break
+                elif line.strip() == '```':
+                    content_start = i + 1
+                    break
+
+            if content_start > 0:
+                enhanced_content = '\n'.join(lines[content_start:]).strip()
+
+        # Write enhanced post with original frontmatter
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write('---\n')
             yaml.dump(frontmatter, f, default_flow_style=False)
