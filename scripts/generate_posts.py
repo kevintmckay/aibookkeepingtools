@@ -448,7 +448,7 @@ Return JSON with keys:
 """
 
 # Enhanced draft prompt with SEO optimization
-DRAFT_PROMPT_TMPL = """Write a 1,600–2,100 word article in Markdown optimized for SEO and user experience.
+DRAFT_PROMPT_TMPL = """CRITICAL: Write a comprehensive article that is MINIMUM 1,600 words (MANDATORY). Target 1,800-2,100 words for optimal SEO performance.
 
 Working title: {working_title}
 
@@ -458,6 +458,12 @@ Summary:
 Outline:
 {outline_md}
 
+WORD COUNT REQUIREMENTS:
+- ABSOLUTE MINIMUM: 1,600 words (articles under 1,600 words will be rejected)
+- TARGET RANGE: 1,800-2,100 words for best SEO performance
+- Each major section should be 200-400 words minimum
+- Expand all points with detailed explanations, examples, and context
+
 Guidelines:
 - Include the target keyword naturally in the first 100 words and in H2 headings where appropriate
 - Add 2-3 internal links to existing content where they provide genuine value:
@@ -466,22 +472,32 @@ Guidelines:
   * /posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/
   * /posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/
   * /posts/ai-tax-prep-tools-for-self-employed-in-2025/
-- Technical depth; step-by-step where applicable
-- Include a short "Quick Start" section early in the post
-- Add a "Common Mistakes to Avoid" or "Pitfalls & Gotchas" section
-- Include 3–5 authoritative citations inline as Markdown links
-- Add a 5-item FAQ at the end (use/refine provided Q/A)
-- Use H2/H3 headings. Keep paragraphs short (2-3 sentences max)
-- REQUIRED: Include at least one comparison table with REAL tool names (QuickBooks AI, Xero, FreshBooks AI, etc.)
-- REQUIRED: Use specific, verifiable pricing from official vendor websites
-- End with clear next steps or call-to-action
-- MANDATORY: All statistics must include publication dates from 2024-2025
+- Technical depth; step-by-step where applicable with detailed explanations
+- Include a comprehensive "Quick Start" section early in the post (minimum 150 words)
+- Add a detailed "Common Mistakes to Avoid" or "Pitfalls & Gotchas" section (minimum 200 words)
+- Include 3–5 authoritative citations inline as Markdown links with context
+- Add a comprehensive 5-item FAQ at the end (use/refine provided Q/A, minimum 50 words per answer)
+- Use H2/H3 headings. Expand paragraphs with detailed explanations (3-5 sentences each)
+- REQUIRED: Include at least one detailed comparison table with REAL tool names (QuickBooks AI, Xero, FreshBooks AI, etc.)
+- REQUIRED: Use specific, verifiable pricing from official vendor websites with detailed explanations
+- End with comprehensive next steps or call-to-action section (minimum 100 words)
+- MANDATORY: All statistics must include publication dates from 2024-2025 with context
 - MANDATORY: Cite specific vendor documentation, official government sources (IRS.gov), and recognized industry reports
 - NO GENERIC PLACEHOLDERS: Never use "Tool A", "Company X", or similar - always use real names
+- EXPAND EVERY POINT: Add examples, use cases, benefits, and detailed explanations throughout
+
+CONTENT EXPANSION TECHNIQUES:
+- Add real-world examples and case studies
+- Include step-by-step instructions with explanations
+- Provide context and background information
+- Add pros/cons lists for tools and methods
+- Include troubleshooting sections
+- Add implementation timelines and considerations
+- Provide cost-benefit analysis where relevant
 
 Internal link format: [descriptive anchor text](/posts/slug-here/)
 
-Return ONLY the Markdown body (no front matter, no backticks).
+Return ONLY the Markdown body (no front matter, no backticks). ENSURE the final article is at least 1,600 words.
 """
 
 def supports_json_mode(model: str) -> bool:
@@ -732,8 +748,8 @@ def generate_content(title: str, summary: str, outline_list: List[str], faqs: Li
                     {"role": "user", "content": DRAFT_PROMPT_TMPL.format(
                         working_title=title, summary=summary, outline_md=outline_md)}
                 ],
-                max_tokens=2500,
-                timeout=60,
+                max_tokens=4000,
+                timeout=90,
                 json_mode=False,
                 max_retries=3,
                 operation="draft",
