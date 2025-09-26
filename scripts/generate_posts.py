@@ -34,8 +34,8 @@ except ImportError:
 # --- Paths & config ---
 REPO_ROOT       = pathlib.Path(__file__).resolve().parent.parent
 CONTENT_DIR     = REPO_ROOT / "content" / "posts"
-TOPICS_FILE     = REPO_ROOT / "topics.yaml"
-TOPICS_DONE_FILE= REPO_ROOT / "topics_done.yaml"
+TOPICS_FILE     = REPO_ROOT / "data" / "topics.yaml"
+TOPICS_DONE_FILE= REPO_ROOT / "data" / "topics_done.yaml"
 
 def _int(env_name: str, default: int) -> int:
     try:
@@ -43,7 +43,7 @@ def _int(env_name: str, default: int) -> int:
     except Exception:
         return default
 
-POSTS_PER_RUN       = _int("POSTS_PER_RUN", 2)
+POSTS_PER_RUN       = _int("POSTS_PER_RUN", 1)
 MODEL_OUTLINE_ENV   = os.getenv("MODEL_OUTLINE", "gpt-4o-mini")
 MODEL_DRAFT_ENV     = os.getenv("MODEL_DRAFT",   "gpt-4o-mini")
 ALLOW_DUP_SLUG      = os.getenv("ALLOW_DUPLICATE_SLUG", "").strip().lower() in ("1","true","yes")
