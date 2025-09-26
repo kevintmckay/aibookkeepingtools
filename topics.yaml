@@ -5,9 +5,6 @@ topics:
 - keyword: Troubleshooting AI bookkeeping software issues
   audience: Current AI bookkeeping users
   intent: How-to tutorial
-- keyword: AI bookkeeping for retail and inventory management
-  audience: Retail business owners
-  intent: How-to tutorial
 - keyword: Advanced AI bookkeeping automation workflows
   audience: Power users and accounting professionals
   intent: How-to tutorial
@@ -28,9 +25,6 @@ topics:
   intent: How-to tutorial
 - keyword: AI bookkeeping for transportation and logistics
   audience: Trucking and logistics company owners
-  intent: How-to tutorial
-- keyword: Budget planning with AI bookkeeping tools
-  audience: Financial planners and business owners
   intent: How-to tutorial
 - keyword: AI bookkeeping mobile app reviews and comparisons
   audience: Mobile-first business users
