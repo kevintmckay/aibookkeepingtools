@@ -95,7 +95,7 @@ Schedule automatic reconciliation of bank statements to catch discrepancies earl
 
 Set up your AI tool to automatically generate financial reports, providing insights into profit margins, expenses, and forecasts.
 
-For a comprehensive look at automating bookkeeping with AI, visit our guide on [how to automate bookkeeping with AI](https://www.yourwebsite.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
+For a comprehensive look at automating bookkeeping with AI, visit our guide on [how to automate bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
 
 ## Case Studies: Successful Startups Using AI for Bookkeeping
 

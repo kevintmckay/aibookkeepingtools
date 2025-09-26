@@ -45,7 +45,7 @@ One of the standout features of QuickBooks AI is its ability to automate repetit
 - **Invoicing Automation**: Set up recurring invoices for regular clients using the AI tool to recognize patterns in payment cycles.
 - **Transaction Categorization**: AI technologies can learn your categorization preferences and automatically classify transactions, ensuring consistency and ease.
 
-For further details on automating bookkeeping tasks, consider reviewing [how to automate bookkeeping with AI](https://www.example.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
+For further details on automating bookkeeping tasks, consider reviewing [how to automate bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
 
 ### Enhanced Expense Tracking Capabilities
 
@@ -54,7 +54,7 @@ Tracking expenses accurately is critical for maintaining a profitable business. 
 - **Smart Receipt Scanning**: AI can automatically extract data from receipts using Optical Character Recognition (OCR), saving time on manual data entry.
 - **Real-time Analytics**: Gain insights into spending patterns, helping in budget allocations and financial planning.
 
-For additional comparisons of expense tracking tools, check out [AI expense tracking apps compared](https://www.example.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
+For additional comparisons of expense tracking tools, check out [AI expense tracking apps compared](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
 
 ### AI-Powered Reporting and Insights
 
@@ -123,7 +123,7 @@ QuickBooks Advanced AI features in 2025 present a wealth of opportunities for im
 To get started:
 
 1. Enable AI features in your version of QuickBooks.
-2. Familiarize yourself with available functions through [resources](https://www.example.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025).
+2. Familiarize yourself with available functions through [resources](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
 3. Implement best practices to ensure a smooth transition.
 
 ### FAQ

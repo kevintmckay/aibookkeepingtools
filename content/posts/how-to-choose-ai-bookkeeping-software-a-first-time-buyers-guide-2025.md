@@ -22,7 +22,7 @@ AI bookkeeping software leverages artificial intelligence to automate and optimi
 - **Automation**: Many repetitive tasks, such as invoice processing and expense tracking, are automated.
 - **Predictive Analytics**: AI capabilities allow for forecasting trends based on historical data, helping with budget planning.
 
-For a deeper dive into the benefits of integrating AI into your accounting practices, see our post on [how to automate bookkeeping with AI](https://example.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
+For a deeper dive into the benefits of integrating AI into your accounting practices, see our post on [how to automate bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
 
 ### Key Features to Look For
 
@@ -77,7 +77,7 @@ When it comes to top AI bookkeeping software, the following options are worth co
 | FreshBooks        | Great for freelancers, intuitive interface | Some advanced features missing |
 | Zoho Books        | Very affordable, extensive features       | Learning curve for advanced tools |
 
-For small business-specific options, check our guide on the [best AI bookkeeping tools for small businesses in 2025](https://example.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
+For small business-specific options, check our guide on the [best AI bookkeeping tools for small businesses in 2025](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
 
 ### Quick Start: Steps to Select Your Software
 
@@ -119,4 +119,4 @@ Moving forward, take time to explore options, utilize available resources, and l
 5. **What are common features to look for in AI bookkeeping software?**
    Key features include automation of tasks, real-time reporting, mobile access, security protocols, and user-friendly interfaces.
 
-For additional insights and recommendations, explore our posts on [AI expense tracking apps](https://example.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/) and [AI tools for tax preparation](https://example.com/posts/ai-tax-prep-tools-for-self-employed-in-2025/).
+For additional insights and recommendations, explore our posts on [AI expense tracking apps](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/) and [AI tools for tax preparation](/posts/ai-tax-prep-tools-for-self-employed-in-2025/).

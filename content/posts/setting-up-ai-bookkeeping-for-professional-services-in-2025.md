@@ -53,7 +53,7 @@ Selecting effective AI bookkeeping tools is crucial. Consider the following crit
 ### Quick Start: Setting Up Your AI Bookkeeping System
 
 1. **Define Your Needs**: Assess your firm’s bookkeeping requirements. Identify areas that could benefit the most from automation.
-2. **Select a Tool**: Choose an AI bookkeeping tool that aligns with your needs. Check out the [best AI bookkeeping tools for small businesses](https://yourwebsite.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
+2. **Select a Tool**: Choose an AI bookkeeping tool that aligns with your needs. Check out the [best AI bookkeeping tools for small businesses](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
 3. **Data Migration**: Import your existing financial data into the new system.
 4. **Customize Settings**: Configure the system to match your firm’s workflows. Set parameters for transactions and reporting.
 5. **Training**: Provide your team with training sessions on the new tool to maximize its potential.
@@ -123,4 +123,4 @@ Implementing AI bookkeeping for your professional services firm in 2025 not only
 5. **What common mistakes should I avoid when implementing AI bookkeeping?**
    Common mistakes include underestimating training needs, neglecting regular reviews, and failing to customize tools to fit your workflows.
 
-Implement these strategies to take your bookkeeping to the next level and prepare your firm for the future. For further insights, consider exploring our posts on [automating bookkeeping with AI](https://yourwebsite.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) and comparing [AI expense tracking apps](https://yourwebsite.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
+Implement these strategies to take your bookkeeping to the next level and prepare your firm for the future. For further insights, consider exploring our posts on [automating bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) and comparing [AI expense tracking apps](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).

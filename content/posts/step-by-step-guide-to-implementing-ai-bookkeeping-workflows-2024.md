@@ -1,14 +1,14 @@
 ---
-title: "Step-by-Step Guide to Implementing AI Bookkeeping Workflows (2024)"
+title: "Step-by-Step Guide to Implementing AI Bookkeeping Workflows (2025)"
 date: "2025-08-28T01:44:01Z"
-slug: "step-by-step-guide-to-implementing-ai-bookkeeping-workflows-2024"
-description: "Learn to automate your bookkeeping with AI. This step-by-step guide simplifies implementation for small business owners in 2024."
+slug: "step-by-step-guide-to-implementing-ai-bookkeeping-workflows-2025"
+description: "Learn to automate your bookkeeping with AI. This step-by-step guide simplifies implementation for small business owners in 2025."
 tags: ["AI", "Bookkeeping", "Accounting", "Tools"]
 categories: ["Guides"]
 draft: false
 ---
 
-## Step-by-Step Guide to Implementing AI Bookkeeping Workflows (2024)
+## Step-by-Step Guide to Implementing AI Bookkeeping Workflows (2025)
 
 ### Introduction to AI in Bookkeeping
 

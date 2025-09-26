@@ -1,14 +1,14 @@
 ---
-title: "AI Bookkeeping for E-commerce: A Guide for Online Sellers 2023"
+title: "AI Bookkeeping for E-commerce: A Guide for Online Sellers 2025"
 date: "2025-09-14T21:10:27Z"
-slug: "ai-bookkeeping-for-e-commerce-a-guide-for-online-sellers-2023"
-description: "Leverage AI bookkeeping tools to streamline your e-commerce business. Discover practical steps and resources for Shopify, Amazon, and Etsy sellers."
+slug: "ai-bookkeeping-for-e-commerce-a-guide-for-online-sellers-2025"
+description: "Leverage AI bookkeeping tools to streamline your e-commerce business. Discover practical steps and resources for Shopify, Amazon, and Etsy sellers in 2025."
 tags: ["AI", "Bookkeeping", "Accounting", "Tools"]
 categories: ["Guides"]
 draft: false
 ---
 
-## AI Bookkeeping for E-commerce: A Guide for Online Sellers 2023
+## AI Bookkeeping for E-commerce: A Guide for Online Sellers 2025
 
 ### Introduction to AI Bookkeeping for E-commerce
 

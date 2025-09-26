@@ -126,9 +126,9 @@ For further insights on automation in accounting, consider reading about [how to
 
 ## Additional Resources
 
-- [AI for Accountants: Optimize Workflows](https://example.com/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/)
-- [AI Expense Tracking Apps Compared](https://example.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/)
-- [AI Tax Prep Tools for Self-Employed in 2025](https://example.com/posts/ai-tax-prep-tools-for-self-employed-in-2025/)
+- [AI for Accountants: Optimize Workflows](/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/)
+- [AI Expense Tracking Apps Compared](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/)
+- [AI Tax Prep Tools for Self-Employed in 2025](/posts/ai-tax-prep-tools-for-self-employed-in-2025/)
 
 ## Frequently Asked Questions
 

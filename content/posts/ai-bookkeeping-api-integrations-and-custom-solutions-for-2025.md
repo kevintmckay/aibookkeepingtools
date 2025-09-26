@@ -45,7 +45,7 @@ When evaluating AI bookkeeping APIs, consider the following features:
 
 ### Popular AI Features Comparison Table
 
-| Feature                  | AI Tool A       | AI Tool B       | AI Tool C       |
+| Feature                  | QuickBooks API  | Xero API        | FreshBooks API  |
 |--------------------------|------------------|------------------|------------------|
 | Automated Data Entry     | Yes              | Yes              | No               |
 | Predictive Analytics      | Yes              | No               | Yes              |
@@ -73,7 +73,7 @@ Here’s a simple guide to quickly get your AI bookkeeping API up and running:
 5. **Integration Development**: Write code to connect your application with the API, focusing on endpoints relevant to your bookkeeping needs.
 6. **Continuous Monitoring**: Monitor API performance to ensure smooth operation and identify issues.
 
-For a more detailed guide on automating bookkeeping with AI, check out our post on [how to automate bookkeeping with AI](https://www.example.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
+For a more detailed guide on automating bookkeeping with AI, check out our post on [how to automate bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
 
 ## Custom Solutions: Real-World Applications
 
@@ -83,7 +83,7 @@ Beyond standard integrations, businesses can benefit from custom solutions tailo
 - **Automated Report Generation**: Set up automated reports that pull data from various sources to reduce manual reporting.
 - **Expense Reimbursement Solutions**: Develop a custom app for managing employee expenses seamlessly, tied to your bookkeeping system.
 
-For more on comparing different expense tracking solutions, see our article on [AI expense tracking apps compared](https://www.example.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
+For more on comparing different expense tracking solutions, see our article on [AI expense tracking apps compared](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
 
 ## Best Practices for API Integration
 

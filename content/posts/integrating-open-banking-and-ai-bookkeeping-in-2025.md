@@ -114,7 +114,7 @@ As we progress through 2025, several trends are expected to impact open banking 
 - **Broader Adoption of APIs**: More banks will offer open banking APIs, expanding the potential integrations available to businesses.
 - **Enhanced Customer-Centric Services**: Open banking will enable personalized financial advice, tailored to individual business needs.
 
-For more insights into optimizing your workflows, explore our article on [AI for accountants to serve more clients](https://www.example.com).
+For more insights into optimizing your workflows, explore our article on [AI for accountants to serve more clients](/posts/ai-for-accountants-optimize-workflows-to-serve-more-clients/).
 
 ### Common Mistakes to Avoid
 
@@ -129,7 +129,7 @@ Integrating open banking with AI bookkeeping will streamline your financial proc
 #### Next Steps:
 
 1. **Evaluate Your Current Systems**: Take stock of your existing financial management processes.
-2. **Research AI Bookkeeping Tools**: Explore our list of [best AI bookkeeping tools for small businesses](https://www.example.com).
+2. **Research AI Bookkeeping Tools**: Explore our list of [best AI bookkeeping tools for small businesses](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
 3. **Implement Open Banking Integration**: Follow the steps outlined above to set up your integration.
 
 ### Frequently Asked Questions (FAQ)

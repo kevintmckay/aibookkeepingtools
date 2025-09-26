@@ -23,7 +23,7 @@ AI bookkeeping brings several significant advantages to the restaurant industry,
 - **Real-time Insights**: Provides up-to-date financial data for better decision-making.
 - **Scalability**: Easily adapts to growing business needs, which is crucial for expanding restaurants.
 
-For a deeper understanding of how automation can improve your workflow, check our article on [automating bookkeeping with AI](https://yourwebsite.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
+For a deeper understanding of how automation can improve your workflow, check our article on [automating bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
 
 ### Key Features to Look for in AI Bookkeeping Tools
 
@@ -46,7 +46,7 @@ Several AI-driven bookkeeping tools cater specifically to the food service secto
 | **Zoho Books**      | Multi-currency support, tax compliance, project tracking | Diverse cuisine establishments   |
 | **FreshBooks**      | Invoice management, time tracking, easy collaboration | Cafés and food trucks           |
 
-Explore more detailed insights in our comparison of [AI expense tracking apps](https://yourwebsite.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
+Explore more detailed insights in our comparison of [AI expense tracking apps](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
 
 ### Quick Start: Implementing AI Bookkeeping Solutions
 
@@ -125,4 +125,4 @@ Costs can vary considerably depending on the complexity of the features. Basic p
 - **Research Available Tools**: Look for AI bookkeeping solutions that meet your specific needs and budget.
 - **Prepare for Implementation**: Begin discussing with your team about the shift to AI bookkeeping and arrange for training once you select a solution.
 
-For further insights on selecting the right tools, check out our post on the [best AI bookkeeping tools for small businesses in 2025](https://yourwebsite.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
+For further insights on selecting the right tools, check out our post on the [best AI bookkeeping tools for small businesses in 2025](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).

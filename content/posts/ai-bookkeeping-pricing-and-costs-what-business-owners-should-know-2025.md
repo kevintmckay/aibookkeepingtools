@@ -55,7 +55,7 @@ Conducting a cost-benefit analysis helps clarify whether the investment in AI bo
 2. **Estimate Savings**: Calculate savings from reduced manual work and error corrections.
 3. **Compare Alternatives**: Evaluate how traditional bookkeeping costs stack against AI tools.
 
-For a more in-depth look at reducing manual processes, check out our post on [how to automate bookkeeping with AI](https://www.example.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
+For a more in-depth look at reducing manual processes, check out our post on [how to automate bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
 
 ### Hidden Costs to Consider
 
@@ -81,7 +81,7 @@ Several AI bookkeeping tools cater to different budgets. Here are top affordable
 - **Xero**: User-friendly with robust inventory and invoicing features.
 - **Zoho Books**: Cost-effective for small to mid-sized businesses.
 
-For more detailed comparisons, refer to our post on [the best AI bookkeeping tools for small businesses](https://www.example.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
+For more detailed comparisons, refer to our post on [the best AI bookkeeping tools for small businesses](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
 
 ### User Experiences: Case Studies
 

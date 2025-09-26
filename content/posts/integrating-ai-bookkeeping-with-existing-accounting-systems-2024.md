@@ -1,14 +1,14 @@
 ---
-title: "Integrating AI Bookkeeping with Existing Accounting Systems 2024"
+title: "Integrating AI Bookkeeping with Existing Accounting Systems 2025"
 date: "2025-08-28T01:49:02Z"
-slug: "integrating-ai-bookkeeping-with-existing-accounting-systems-2024"
+slug: "integrating-ai-bookkeeping-with-existing-accounting-systems-2025"
 description: "Learn how to effectively integrate AI bookkeeping tools with existing accounting systems to streamline processes and enhance accuracy."
 tags: ["AI", "Bookkeeping", "Accounting", "Tools"]
 categories: ["Guides"]
 draft: false
 ---
 
-## Integrating AI Bookkeeping with Existing Accounting Systems 2024
+## Integrating AI Bookkeeping with Existing Accounting Systems 2025
 
 ### Introduction
 

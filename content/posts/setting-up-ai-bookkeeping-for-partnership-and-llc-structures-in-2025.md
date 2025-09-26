@@ -66,7 +66,7 @@ AI tools can automate and enhance the expense management process:
 2. **Real-Time Expense Updates**: Track expenses as they occur, minimizing manual entry.
 3. **Categorization**: AI systems can automatically categorize expenses based on historical data patterns.
 
-To see how to automate bookkeeping with QuickBooks, refer to our guide on [automating bookkeeping with AI](https://www.example.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
+To see how to automate bookkeeping with QuickBooks, refer to our guide on [automating bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/).
 
 ### Maintaining Compliance and Financial Records
 

@@ -120,7 +120,7 @@ AI bookkeeping offers substantial advantages for healthcare practices, including
 
 **Next Steps:**
 - Evaluate your current bookkeeping processes.
-- Explore [best AI bookkeeping tools for small businesses](https://yourwebsite.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/) to find the best fit for your practice.
+- Explore [best AI bookkeeping tools for small businesses](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/) to find the best fit for your practice.
 - Consider training options to ensure your team can fully leverage your new tools.
 
 ### Frequently Asked Questions (FAQ)
@@ -140,7 +140,7 @@ AI bookkeeping offers substantial advantages for healthcare practices, including
 5. **How do I ensure compliance with healthcare regulations in bookkeeping?**
    - Choose tools that comply with HIPAA and other relevant regulations, and conduct regular audits to verify compliance.
 
-For more insights on automating bookkeeping, check out [how to automate bookkeeping with AI: QuickBooks Receipt OCR](https://yourwebsite.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) and explore [AI expense tracking apps compared](https://yourwebsite.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
+For more insights on automating bookkeeping, check out [how to automate bookkeeping with AI: QuickBooks Receipt OCR](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) and explore [AI expense tracking apps compared](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
 
 
 ## FAQ

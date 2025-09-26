@@ -1,8 +1,8 @@
 ---
-title: "Sage AI vs QuickBooks AI: Detailed Feature Comparison 2023"
+title: "Sage AI vs QuickBooks AI: Detailed Feature Comparison 2025"
 date: "2025-09-02T21:17:03Z"
-slug: "sage-ai-vs-quickbooks-ai-detailed-feature-comparison-2023"
-description: "Explore a comprehensive comparison of Sage AI and QuickBooks AI for mid-size businesses. Make informed enterprise tool choices with our detailed analysis."
+slug: "sage-ai-vs-quickbooks-ai-detailed-feature-comparison-2025"
+description: "Explore a comprehensive comparison of Sage AI and QuickBooks AI for mid-size businesses. Make informed enterprise tool choices with our detailed analysis for 2025."
 tags: ["AI", "Bookkeeping", "Accounting", "Tools"]
 categories: ["Guides"]
 draft: false
@@ -192,7 +192,7 @@ By weighing the pros and cons highlighted in this comparison, along with underst
 5. **What type of customer support can I expect?**
    - Sage AI provides various support options, including email and chat, while QuickBooks offers 24/7 support via phone and chat.
 
-For further insights, explore our articles on [best AI bookkeeping tools for small businesses](https://www.example.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/) and [how to automate bookkeeping with AI QuickBooks receipt OCR](https://www.example.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/). 
+For further insights, explore our articles on [best AI bookkeeping tools for small businesses](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/) and [how to automate bookkeeping with AI QuickBooks receipt OCR](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/). 
 
 ### Next Steps
 

@@ -46,7 +46,7 @@ Choosing the right software starts with evaluating your specific requirements. H
 4. **Assess Integration**: Ensure the software can integrate with other tools you're already using, like CRM systems or ERP software.
 5. **Evaluate Customer Support**: Reliable support is crucial, particularly when setting up a complex system across multiple locations.
 
-For a detailed overview of popular tools, visit our article on [the best AI bookkeeping tools for small businesses in 2025](https://yourwebsite.com/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
+For a detailed overview of popular tools, visit our article on [the best AI bookkeeping tools for small businesses in 2025](/posts/best-ai-bookkeeping-tools-for-small-businesses-2025/).
 
 ### Quick Start: Setting Up Your AI Bookkeeping System
 

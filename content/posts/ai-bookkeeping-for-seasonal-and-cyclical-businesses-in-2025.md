@@ -85,7 +85,7 @@ Pairing your bookkeeping software with AI expense tracking apps can enhance your
 - **Zoho Expense**: Offers comprehensive expense reporting features and collaboration for teams.
 - **Divvy**: Provides smart credit cards that integrate with accounting systems for seamless expense management.
 
-For more on these tools, check out our comparison of [AI expense tracking apps](https://www.example.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
+For more on these tools, check out our comparison of [AI expense tracking apps](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/).
 
 ### How to Stay Compliant During Off-Peak Seasons
 

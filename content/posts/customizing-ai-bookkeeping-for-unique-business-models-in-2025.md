@@ -122,7 +122,7 @@ Customizing AI bookkeeping tools is not merely an upgrade; it’s a necessity fo
 2. Explore recommended tools in detail.
 3. Begin the customization process following the outlined steps.
 
-Additionally, consider reading more on [how to automate bookkeeping with AI](https://www.yourdomain.com/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) for advanced strategies, and compare [AI expense tracking apps](https://www.yourdomain.com/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/) to find the best fit for your needs.
+Additionally, consider reading more on [how to automate bookkeeping with AI](/posts/how-to-automate-bookkeeping-with-ai-quickbooks-receipt-ocr/) for advanced strategies, and compare [AI expense tracking apps](/posts/ai-expense-tracking-apps-compared-expensify-vs-zoho-vs-divvy/) to find the best fit for your needs.
 
 ### Common Mistakes to Avoid
 
