@@ -11,15 +11,15 @@ draft: false
 ## AI Bookkeeping for Manufacturing Businesses: A 2025 Guide
 
 ### Introduction to AI Bookkeeping in Manufacturing
-Artificial intelligence is no longer a futuristic add-on for large enterprises—it has become table stakes for manufacturers of every size. Gartner projects that **68% of mid-market manufacturers will have at least one AI-driven finance workflow in production by Q4 2025** (Gartner “Market Guide for AI in Finance,” Jan 2024). Whether you operate a 50-person job shop or a global multi-plant operation, AI bookkeeping can eliminate repetitive entries, close the books faster, and surface margin insights that were previously buried in spreadsheets.
+Artificial intelligence is no longer a futuristic add-on for large enterprises—it has become table stakes for manufacturers of every size. Industry analysts project significant growth in AI adoption across mid-market manufacturers throughout 2025. Whether you operate a 50-person job shop or a global multi-plant operation, AI bookkeeping can eliminate repetitive entries, close the books faster, and surface margin insights that were previously buried in spreadsheets.
 
 This guide upgrades our original 2023 playbook with 2025-ready data, real manufacturing case studies, and step-by-step implementation advice so you can move from curiosity to measurable ROI in under six months.
 
 ---
 
 ### 2025 Market Snapshot
-- IDC estimates that manufacturers will spend **US $4.7 billion on AI-enabled finance applications in 2025**, up 38% YoY (IDC “Worldwide AI Spending Guide,” May 2024).
-- 42% of controller-level respondents in the **2024 Deloitte Manufacturing Accounting Automation Survey** reported closing their monthly books in **≤5 days** after adopting AI, versus 19% pre-adoption.
+- Manufacturers are significantly increasing investment in AI-enabled finance applications, with substantial year-over-year growth expected through 2025.
+- Manufacturing finance leaders report substantially faster month-end close times after adopting AI, with many achieving close cycles under 5 days.
 - According to PwC’s 2024 “Global Digital Trust Insights,” AI systems with embedded compliance checks reduce audit adjustments by **31%** on average across the industrial sector.
 
 ---

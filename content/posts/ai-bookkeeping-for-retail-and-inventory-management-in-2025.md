@@ -11,7 +11,7 @@ draft: false
 ## AI Bookkeeping for Retail and Inventory Management in 2025
 
 ### Introduction: Why AI Bookkeeping Is Non-Negotiable This Year
-Brick-and-mortar retail, e-commerce, and omnichannel brands all face the same 2025 reality: financial data is being generated faster than humans can process it. A May 2024 Gartner Finance & AI Survey found that 78% of global retailers process more than 10 million financial transactions per quarter—up 42% since 2021. Manually keying those transactions is no longer feasible, and even legacy “digital” accounting packages without machine learning can’t keep up with SKU-level demand forecasting or next-day reconciliation.
+Brick-and-mortar retail, e-commerce, and omnichannel brands all face the same 2025 reality: financial data is being generated faster than humans can process it. Retailers are processing dramatically more transactions than ever before, with many handling millions of financial transactions per quarter. Manually keying those transactions is no longer feasible, and even legacy "digital" accounting packages without machine learning can't keep up with SKU-level demand forecasting or next-day reconciliation.
 
 Enter AI bookkeeping: a stack of machine-learning tools that ingest point-of-sale (POS) data, supplier invoices, RFID scans, and bank feeds in real time, reconcile them automatically, and surface insights that finance teams can act on immediately. When Inditex (parent company of Zara) rolled out AI-driven bookkeeping and inventory analytics in 2024, it cut month-end close from nine days to three and reduced working-capital tied up in excess stock by €520 million in the first twelve months (Inditex Annual Report, 2025).
 
@@ -23,7 +23,7 @@ This guide distills everything retailers need to know—from tool selection and 
 1. **Near-Perfect Data Accuracy**
    - Amazon’s Just Walk Out stores use computer-vision AI to achieve 99.8% transaction accuracy, virtually eliminating shrink attributed to key-entry mistakes (Amazon Q4 2024 Earnings Call).
 2. **Lower Operating Costs**
-   - A 2024 Deloitte benchmark study of 312 U.S. retailers found AI bookkeeping lowered finance labor costs by 33% on average—$230,000 per $10 million in revenue.
+   - Retailers implementing AI bookkeeping report significant reductions in finance labor costs, often achieving substantial savings relative to revenue.
 3. **Lightning-Fast Decision Making**
    - Walmart’s Intelligent Retail Lab pushes POS data into an AI analytics layer every 60 seconds, updating reorder points hourly and cutting out-of-stocks by 20%.
 4. **Scalable Infrastructure**

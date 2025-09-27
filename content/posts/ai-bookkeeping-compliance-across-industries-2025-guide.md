@@ -10,7 +10,7 @@ draft: false
 
 ## AI Bookkeeping Compliance Across Industries: 2025 Guide
 
-As businesses step into 2025, artificial intelligence (AI) has moved from an experimental add-on to a mission-critical layer in finance departments. Deloitte’s 2024 Global Finance Trends survey found that 67% of CFOs increased budget allocation for AI-driven accounting tools last year, and Gartner now predicts that “75% of enterprise finance tasks will be fully automated by 2026” (Gartner Finance Hype Cycle, Nov 2024). While the efficiency upside is undeniable, every additional algorithm in the finance stack widens the compliance attack surface. From HIPAA in healthcare to PCI DSS in retail, organisations must make compliance a design requirement—never an afterthought.
+As businesses step into 2025, artificial intelligence (AI) has moved from an experimental add-on to a mission-critical layer in finance departments. CFOs are significantly increasing budget allocation for AI-driven accounting tools, and industry analysts predict substantial automation of enterprise finance tasks by 2026. While the efficiency upside is undeniable, every additional algorithm in the finance stack widens the compliance attack surface. From HIPAA in healthcare to PCI DSS in retail, organisations must make compliance a design requirement—never an afterthought.
 
 This expanded 2025 guide delivers a practitioner-level playbook: real company case studies, current pricing tables, step-by-step implementation roadmaps, and pro tips for sustaining continuous compliance.
 
