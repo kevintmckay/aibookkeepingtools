@@ -150,6 +150,6 @@ Perform regular software updates, data backups, and review audit trails to maint
 
 ## Next Steps
 
-To ensure your AI bookkeeping software runs smoothly, consistently monitor its performance, install updates, and engage with community resources to stay informed about best practices and emerging challenges. This proactive approach will not only prevent downtime but also enhance the efficiency and effectiveness of your financial operations. 
+To ensure your AI bookkeeping software runs smoothly, consistently monitor its performance, install updates, and engage with community resources to stay informed about best practices and emerging challenges. This proactive approach will not only prevent downtime but also enhance the efficiency and effectiveness of your financial operations.
 
 Start by evaluating which issues outlined here are most pressing for your organization and set a plan to address them systematically. Engaging with vendor support for bespoke advice can further refine your maintenance strategies.

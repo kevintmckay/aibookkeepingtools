@@ -134,7 +134,7 @@ For more on optimizing workflows to serve more clients using AI, read our articl
 
 ## Conclusion: Preparing for an AI-Driven Future
 
-The future of AI in bookkeeping and accounting looks promising, offering unprecedented opportunities for efficiency and insight. Businesses must proactively embrace this technology by investing in the right tools, training their staff, and staying compliant with regulations. 
+The future of AI in bookkeeping and accounting looks promising, offering unprecedented opportunities for efficiency and insight. Businesses must proactively embrace this technology by investing in the right tools, training their staff, and staying compliant with regulations.
 
 ### Next Steps:
 - Assess your current bookkeeping processes.

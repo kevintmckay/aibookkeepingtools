@@ -24,7 +24,7 @@ In 2025, integrating **open banking** with **AI bookkeeping** represents a trans
 
 ### Understanding Open Banking in the UK/EU
 
-Open banking in the UK and EU is largely regulated by the EU’s Revised Payment Services Directive (PSD2) and the UK's Open Banking Implementation Entity. These regulations mandate that banks share customer data with authorized third parties, provided customers give consent. 
+Open banking in the UK and EU is largely regulated by the EU’s Revised Payment Services Directive (PSD2) and the UK's Open Banking Implementation Entity. These regulations mandate that banks share customer data with authorized third parties, provided customers give consent.
 
 #### Key Features of Open Banking:
 

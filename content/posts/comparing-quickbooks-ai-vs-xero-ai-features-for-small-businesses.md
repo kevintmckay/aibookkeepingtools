@@ -22,7 +22,7 @@ For small businesses looking to [choose the best AI bookkeeping software](/posts
 
 1. **Smart Invoice Management**
    - QuickBooks uses AI to automate invoice generation and reminders, reducing time spent on accounts receivable.
-   
+
 2. **Expense Tracking & Categorization**
    - The software intelligently categorizes expenses based on historical data, helping to maintain organized records effortlessly.
 

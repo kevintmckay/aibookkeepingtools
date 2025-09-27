@@ -64,7 +64,7 @@ Despite its many advantages, transitioning to AI bookkeeping isn't without chall
 
 A cost analysis shows significant differences between traditional and AI bookkeeping solutions:
 
-- **Traditional Bookkeeping Costs**: 
+- **Traditional Bookkeeping Costs**:
   - Salaries for bookkeepers: $40,000 - $70,000 annually, depending on experience level.
   - Costs associated with training, office space, and software.
 
@@ -90,7 +90,7 @@ A cost analysis shows significant differences between traditional and AI bookkee
 ### Case Studies: Businesses that Made the Switch
 
 1. **ABC Corp**: Transitioned to an AI bookkeeping solution, reducing transaction processing time by 75%. They now receive financial reports in real time and have cut costs by 30%.
-   
+
 2. **XYZ Innovators**: Started using an AI tool for automatic expense tracking and categorization, resulting in significant time savings during month-end close processes.
 
 3. **Tech Solutions Inc.**: Implemented a hybrid model where human bookkeepers and AI software work together, enabling the company to serve more clients effectively.

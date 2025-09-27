@@ -87,7 +87,7 @@ Costs can vary widely depending on the complexity of tax circumstances. Here's a
 
 - **Basic Plans**: $39.95 to $79.99 for simple tax situations.
 - **Premium Plans**: $89.99 to $249.99 for advanced features, including professional consultation.
-  
+
 **Tip**: Some software providers offer bundled services, including bookkeeping and tax prep, potentially easing total expenditures. For comprehensive cost analysis, see our guide on [AI bookkeeping pricing and costs](/posts/ai-bookkeeping-pricing-and-costs-what-business-owners-should-know-2025).
 
 ## User Experience and Support Channels
@@ -144,7 +144,7 @@ For year-round tax preparation benefits, explore [how AI bookkeeping helps with 
 - **Data entry errors**: Mistakes in manually inputted data can lead to issues down the line.
 - **Complex situations**: Those with more intricate financial situations should consider professional advice.
 
-## FAQ 
+## FAQ
 
 1. **What is AI tax prep, and how does it work?**
    - AI tax prep utilizes machine learning and algorithms to streamline data entry, maximize deductions, and provide tailored advice.

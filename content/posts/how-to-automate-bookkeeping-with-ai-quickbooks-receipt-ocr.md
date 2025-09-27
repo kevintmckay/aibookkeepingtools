@@ -96,10 +96,10 @@ While automating bookkeeping processes, various challenges may arise. Here are s
 
 - **Invalid Data Extraction**:
   - **Solution**: Regularly review your OCR’s accuracy and adjust settings as needed for improved recognition.
-  
+
 - **Software Integration Issues**:
   - **Solution**: Ensure both QuickBooks and the OCR tool are updated to the latest versions.
-  
+
 - **Overreliance on Technology**:
   - **Solution**: Maintain a habit of periodic manual checks to ensure data integrity.
 
@@ -131,20 +131,20 @@ As technology continues to evolve, the automation of bookkeeping processes will 
 
 ### FAQ
 
-1. **What is OCR technology, and how does it work?**  
+1. **What is OCR technology, and how does it work?**
    OCR technology converts different types of documents into editable and searchable data by recognizing text within scanned images.
 
-2. **Can I use multiple OCR tools with QuickBooks?**  
+2. **Can I use multiple OCR tools with QuickBooks?**
    Yes, integrating multiple OCR tools is possible, but ensure compatibility with QuickBooks to avoid data conflicts.
 
-3. **How can I improve receipt capture accuracy?**  
+3. **How can I improve receipt capture accuracy?**
    Improve accuracy by ensuring receipts are clear and legible and by customizing settings in your OCR tool.
 
-4. **What types of receipts can I scan using OCR?**  
+4. **What types of receipts can I scan using OCR?**
    Most OCR tools can scan standard paper receipts, digital receipts, and even images taken by a camera.
 
-5. **How often should I reconcile my QuickBooks account?**  
-   It is advisable to reconcile at least once a month to ensure ongoing accuracy and to catch discrepancies early. 
+5. **How often should I reconcile my QuickBooks account?**
+   It is advisable to reconcile at least once a month to ensure ongoing accuracy and to catch discrepancies early.
 
 ### Resources for Further Learning
 

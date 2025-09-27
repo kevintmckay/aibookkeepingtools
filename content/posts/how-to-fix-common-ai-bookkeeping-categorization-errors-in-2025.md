@@ -58,7 +58,7 @@ Invest in training employees on classification standards.
 
 1. **Review the AI's Categorization Suggestions**: Understand how the AI categorizes transactions and where they might be deviating from your expectations.
 
-2. **Manual Reclassification**: 
+2. **Manual Reclassification**:
     - Navigate to the transaction needing adjustment.
     - Edit the category based on established guidelines.
 
