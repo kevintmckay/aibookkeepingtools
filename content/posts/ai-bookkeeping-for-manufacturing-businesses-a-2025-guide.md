@@ -1,17 +1,11 @@
 ---
-categories:
-- Guides
-date: '2025-09-22T21:17:14Z'
-description: Unlock the potential of AI bookkeeping for manufacturing. Streamline
-  operations, reduce errors, and save time in 2025.
+title: "AI Bookkeeping for Manufacturing Businesses: A 2025 Guide"
+date: "2025-09-22T21:17:14Z"
+slug: "ai-bookkeeping-for-manufacturing-businesses-a-2025-guide"
+description: "AI bookkeeping for manufacturing: Automate COGS tracking, inventory management, and multi-location consolidation in 2025."
+tags: ["AI", "Bookkeeping", "Accounting", "Tools"]
+categories: ["Guides"]
 draft: false
-slug: ai-bookkeeping-for-manufacturing-businesses-a-2025-guide
-tags:
-- AI
-- Bookkeeping
-- Accounting
-- Tools
-title: 'AI Bookkeeping for Manufacturing Businesses: A 2025 Guide'
 ---
 
 ## AI Bookkeeping for Manufacturing Businesses: A 2025 Guide

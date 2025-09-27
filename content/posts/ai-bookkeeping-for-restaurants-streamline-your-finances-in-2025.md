@@ -1,17 +1,11 @@
 ---
-categories:
-- Guides
-date: '2025-08-28T21:18:47Z'
-description: Discover how AI bookkeeping enhances efficiency for restaurants. Learn
-  about top tools, automations, and benefits tailored for food service businesses.
+title: "AI Bookkeeping for Restaurants: Streamline Your Finances in 2025"
+date: "2025-08-28T21:18:47Z"
+slug: "ai-bookkeeping-for-restaurants-streamline-your-finances-in-2025"
+description: "AI bookkeeping for restaurants: Automate food costs, tip tracking, POS integration, and multi-location reporting in 2025."
+tags: ["AI", "Bookkeeping", "Accounting", "Tools"]
+categories: ["Guides"]
 draft: false
-slug: ai-bookkeeping-for-restaurants-streamline-your-finances-in-2025
-tags:
-- AI
-- Bookkeeping
-- Accounting
-- Tools
-title: 'AI Bookkeeping for Restaurants: Streamline Your Finances in 2025'
 ---
 
 ## AI Bookkeeping for Restaurants: Streamline Your Finances in 2025

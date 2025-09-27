@@ -1,17 +1,11 @@
 ---
-categories:
-- Guides
-date: '2025-09-12T21:11:42Z'
-description: Explore how AI bookkeeping can streamline financial management for nonprofits.
-  Learn practical steps to enhance efficiency and transparency.
+title: "AI Bookkeeping for Nonprofits and Charities: A How-To Guide 2025"
+date: "2025-09-12T21:11:42Z"
+slug: "ai-bookkeeping-for-nonprofits-and-charities-a-how-to-guide-2025"
+description: "AI bookkeeping for nonprofits: Automate grant tracking, donor management, and financial transparency reporting in 2025."
+tags: ["AI", "Bookkeeping", "Accounting", "Tools"]
+categories: ["Guides"]
 draft: false
-slug: ai-bookkeeping-for-nonprofits-and-charities-a-how-to-guide-2025
-tags:
-- AI
-- Bookkeeping
-- Accounting
-- Tools
-title: 'AI Bookkeeping for Nonprofits and Charities: A How-To Guide 2025'
 ---
 
 ## AI Bookkeeping for Non-Profits and Charities: A How-To Guide 2025 Edition

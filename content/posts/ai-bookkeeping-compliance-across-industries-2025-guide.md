@@ -1,17 +1,11 @@
 ---
-categories:
-- Guides
-date: '2025-09-26T16:44:43Z'
-description: Learn how to ensure AI bookkeeping compliance tailored to your industry,
-  enhancing accuracy and efficiency in 2025.
+title: "AI Bookkeeping Compliance Across Industries: 2025 Guide"
+date: "2025-09-26T16:44:43Z"
+slug: "ai-bookkeeping-compliance-across-industries-2025-guide"
+description: "AI bookkeeping compliance guide: HIPAA, PCI DSS, SOX, and industry-specific regulations for automated accounting in 2025."
+tags: ["AI", "Bookkeeping", "Accounting", "Tools"]
+categories: ["Guides"]
 draft: false
-slug: ai-bookkeeping-compliance-across-industries-2025-guide
-tags:
-- AI
-- Bookkeeping
-- Accounting
-- Tools
-title: 'AI Bookkeeping Compliance Across Industries: 2025 Guide'
 ---
 
 ## AI Bookkeeping Compliance Across Industries: 2025 Guide

@@ -11,7 +11,7 @@ tags:
 - Bookkeeping
 - Accounting
 - Tools
-title: AI Bookkeeping for Digital Agencies and Marketing Firms 2025
+title: "AI Bookkeeping for Digital Agencies and Marketing Firms 2025"
 ---
 
 ## AI Bookkeeping for Digital Agencies and Marketing Firms 2025

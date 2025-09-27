@@ -11,7 +11,7 @@ tags:
 - Bookkeeping
 - Accounting
 - Tools
-title: AI Bookkeeping for Freelancers and Gig Economy Workers in 2025
+title: "AI Bookkeeping for Freelancers and Gig Economy Workers in 2025"
 ---
 
 ## AI Bookkeeping for Freelancers and Gig Economy Workers in 2025
